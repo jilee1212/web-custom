@@ -1,0 +1,138 @@
+{
+  "site": {
+    "name": "TechCorp",
+    "title": "IT Solutions Company - 전문 기술 서비스",
+    "description": "혁신적인 IT 솔루션과 전문 기술 서비스를 제공하는 선도적인 기술 기업",
+    "keywords": "IT솔루션, 소프트웨어개발, 시스템통합, 클라우드서비스, 디지털전환",
+    "url": "https://yourcompany.com",
+    "logo": {
+      "icon": "fas fa-code",
+      "text": "TechCorp"
+    }
+  },
+  "contact": {
+    "address": {
+      "street": "서울특별시 강남구 테헤란로 123",
+      "building": "ABC빌딩 10층",
+      "city": "서울",
+      "postalCode": "06234"
+    },
+    "phone": {
+      "main": "02-1234-5678",
+      "hours": "평일 9:00 - 18:00"
+    },
+    "email": {
+      "info": "info@techcorp.co.kr",
+      "support": "support@techcorp.co.kr"
+    },
+    "social": {
+      "facebook": "https://facebook.com/yourcompany",
+      "twitter": "https://twitter.com/yourcompany",
+      "linkedin": "https://linkedin.com/company/yourcompany",
+      "github": "https://github.com/yourcompany"
+    }
+  },
+  "services": [
+    {
+      "id": "software",
+      "icon": "fas fa-code",
+      "title": "소프트웨어 개발",
+      "description": "웹, 모바일, 데스크톱 애플리케이션 개발부터 엔터프라이즈 시스템 구축까지 전문적인 소프트웨어 개발 서비스",
+      "features": [
+        "웹 애플리케이션 개발",
+        "모바일 앱 개발",
+        "API 개발 및 통합",
+        "레거시 시스템 모던화"
+      ]
+    },
+    {
+      "id": "cloud",
+      "icon": "fas fa-cloud",
+      "title": "클라우드 서비스",
+      "description": "AWS, Azure, GCP 등 주요 클라우드 플랫폼을 활용한 인프라 구축, 마이그레이션, 운영 관리 서비스",
+      "features": [
+        "클라우드 아키텍처 설계",
+        "마이그레이션 지원",
+        "DevOps 구축",
+        "클라우드 보안"
+      ]
+    },
+    {
+      "id": "consulting",
+      "icon": "fas fa-cogs",
+      "title": "IT 컨설팅",
+      "description": "비즈니스 요구사항 분석부터 기술 전략 수립까지 전문적인 IT 컨설팅으로 최적의 솔루션 제시",
+      "features": [
+        "IT 전략 수립",
+        "시스템 분석 및 설계",
+        "디지털 전환 컨설팅",
+        "기술 아키텍처 리뷰"
+      ]
+    },
+    {
+      "id": "maintenance",
+      "icon": "fas fa-tools",
+      "title": "시스템 유지보수",
+      "description": "24/7 모니터링과 전문적인 기술 지원으로 안정적인 시스템 운영을 보장하는 유지보수 서비스",
+      "features": [
+        "24/7 시스템 모니터링",
+        "정기 점검 및 업데이트",
+        "장애 대응 및 복구",
+        "성능 최적화"
+      ]
+    }
+  ],
+  "portfolio": [
+    {
+      "id": "erp-system",
+      "title": "ERP 시스템 구축",
+      "description": "대기업 전사 자원 관리를 위한 통합 ERP 시스템 개발",
+      "category": ["web", "enterprise"],
+      "technologies": ["React", "Node.js", "PostgreSQL"],
+      "image": "fas fa-laptop-code"
+    },
+    {
+      "id": "finance-mobile",
+      "title": "금융 모바일 앱",
+      "description": "보안이 강화된 금융 서비스 모바일 애플리케이션",
+      "category": ["mobile"],
+      "technologies": ["React Native", "Firebase", "Blockchain"],
+      "image": "fas fa-mobile-alt"
+    },
+    {
+      "id": "cloud-migration",
+      "title": "클라우드 마이그레이션",
+      "description": "온프레미스 인프라를 AWS 클라우드로 전환",
+      "category": ["cloud"],
+      "technologies": ["AWS", "Docker", "Kubernetes"],
+      "image": "fas fa-cloud"
+    },
+    {
+      "id": "ecommerce-platform",
+      "title": "이커머스 플랫폼",
+      "description": "대용량 트래픽 처리가 가능한 온라인 쇼핑몰",
+      "category": ["web"],
+      "technologies": ["Vue.js", "Django", "Redis"],
+      "image": "fas fa-shopping-cart"
+    }
+  ],
+  "stats": {
+    "projects": 500,
+    "clients": 150,
+    "experience": 10,
+    "developers": 50
+  },
+  "theme": {
+    "primaryColor": "#2563eb",
+    "secondaryColor": "#10b981",
+    "accentColor": "#f59e0b",
+    "fontPrimary": "Inter",
+    "fontKorean": "Noto Sans KR"
+  },
+  "features": {
+    "darkMode": false,
+    "animations": true,
+    "parallax": false,
+    "lazyLoading": true
+  }
+}

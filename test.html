@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>커스터마이징 테스트</title>
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/customizer.css">
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            font-family: Arial, sans-serif;
+            background: #f5f5f5;
+        }
+        .test-content {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="test-content">
+        <h1>커스터마이징 시스템 테스트</h1>
+        <p>오른쪽에 커스터마이징 버튼이 보여야 합니다.</p>
+        <p>버튼을 클릭하면 커스터마이징 패널이 열려야 합니다.</p>
+    </div>
+
+    <!-- Customizer Toggle Button -->
+    <button id="customizer-toggle" class="customizer-toggle">
+        <i class="fas fa-palette"></i>
+        <span>커스터마이징</span>
+    </button>
+
+    <!-- Customizer Panel -->
+    <div id="customizer-panel" class="customizer-panel hidden">
+        <div class="customizer-header">
+            <h3>실시간 커스터마이징</h3>
+            <button id="customizer-close" class="btn btn--ghost">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="customizer-content">
+            <p>커스터마이징 패널이 정상적으로 작동합니다!</p>
+        </div>
+    </div>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+    <script>
+        console.log('테스트 페이지 로드됨');
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const toggleBtn = document.getElementById('customizer-toggle');
+            const panel = document.getElementById('customizer-panel');
+            const closeBtn = document.getElementById('customizer-close');
+
+            console.log('요소 확인:', {
+                toggleBtn: !!toggleBtn,
+                panel: !!panel,
+                closeBtn: !!closeBtn
+            });
+
+            if (toggleBtn && panel) {
+                toggleBtn.addEventListener('click', () => {
+                    console.log('패널 열기');
+                    panel.classList.remove('hidden');
+                    panel.classList.add('active');
+                });
+            }
+
+            if (closeBtn && panel) {
+                closeBtn.addEventListener('click', () => {
+                    console.log('패널 닫기');
+                    panel.classList.remove('active');
+                    setTimeout(() => panel.classList.add('hidden'), 300);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

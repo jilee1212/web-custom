@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실시간 브랜드 커스터마이징 도구</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: #f8fafc;
+            display: flex;
+            height: 100vh;
+        }
+
+        .sidebar {
+            width: 320px;
+            background: white;
+            border-right: 1px solid #e2e8f0;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .preview {
+            flex: 1;
+            padding: 20px;
+            background: #f1f5f9;
+        }
+
+        .preview-frame {
+            width: 100%;
+            height: 100%;
+            border: none;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            background: white;
+        }
+
+        .section {
+            margin-bottom: 24px;
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #374151;
+            margin-bottom: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 12px;
+            font-weight: 500;
+            color: #6b7280;
+            margin-bottom: 4px;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.2s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .color-input {
+            width: 100%;
+            height: 40px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .select-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 14px;
+            background: white;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 10px 16px;
+            background: #3b82f6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-bottom: 12px;
+            transition: background-color 0.2s;
+        }
+
+        .btn:hover {
+            background: #2563eb;
+        }
+
+        .btn-secondary {
+            background: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background: #4b5563;
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .preview-btn {
+            padding: 6px 12px;
+            border: 1px solid #d1d5db;
+            background: white;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .preview-btn.active {
+            background: #3b82f6;
+            color: white;
+            border-color: #3b82f6;
+        }
+
+        .logo-upload {
+            position: relative;
+            border: 2px dashed #d1d5db;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: border-color 0.2s;
+        }
+
+        .logo-upload:hover {
+            border-color: #3b82f6;
+        }
+
+        .logo-upload input {
+            position: absolute;
+            opacity: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .logo-preview {
+            max-width: 100px;
+            max-height: 60px;
+            margin-bottom: 8px;
+        }
+
+        .export-section {
+            border-top: 1px solid #e5e7eb;
+            padding-top: 20px;
+            margin-top: 20px;
+        }
+
+        /* 프리뷰 스타일 변수 */
+        .preview-content {
+            --primary-color: #3b82f6;
+            --secondary-color: #a855f7;
+            --accent-color: #10b981;
+            --text-color: #1f2937;
+            --bg-color: #ffffff;
+            --font-primary: 'Inter', sans-serif;
+            --border-radius: 8px;
+            --company-name: 'Your Company';
+        }
+    </style>
+</head>
+<body>
+    <div class="sidebar">
+        <h1 style="font-size: 18px; font-weight: 700; margin-bottom: 24px; color: #1f2937;">
+            🎨 브랜드 커스터마이징
+        </h1>
+
+        <!-- 회사 정보 섹션 -->
+        <div class="section">
+            <div class="section-title">회사 정보</div>
+            
+            <div class="form-group">
+                <label class="form-label">회사명</label>
+                <input type="text" class="form-input" id="companyName" placeholder="회사명을 입력하세요" value="TechCorp Solutions">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">업종</label>
+                <select class="select-input" id="industry">
+                    <option value="enterprise">Enterprise B2B</option>
+                    <option value="startup" selected>Startup/Innovation</option>
+                    <option value="healthcare">Healthcare/Medical</option>
+                    <option value="fintech">Fintech/Finance</option>
+                    <option value="ecommerce">E-commerce/Retail</option>
+                    <option value="saas">SaaS/Software</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">메인 메시지</label>
+                <input type="text" class="form-input" id="heroMessage" placeholder="대표 메시지" value="혁신적인 기술로 미래를 만듭니다">
+            </div>
+        </div>
+
+        <!-- 로고 업로드 -->
+        <div class="section">
+            <div class="section-title">로고</div>
+            <div class="logo-upload" onclick="document.getElementById('logoFile').click()">
+                <input type="file" id="logoFile" accept="image/*">
+                <div id="logoPreview">
+                    <div style="font-size: 24px; margin-bottom: 8px;">📷</div>
+                    <div style="font-size: 12px; color: #6b7280;">로고 파일을 선택하세요</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 색상 시스템 -->
+        <div class="section">
+            <div class="section-title">색상 시스템</div>
+            
+            <div class="form-group">
+                <label class="form-label">Primary Color</label>
+                <input type="color" class="color-input" id="primaryColor" value="#6366f1">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Secondary Color</label>
+                <input type="color" class="color-input" id="secondaryColor" value="#f59e0b">
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Accent Color</label>
+                <input type="color" class="color-input" id="accentColor" value="#ef4444">
+            </div>
+        </div>
+
+        <!-- 타이포그래피 -->
+        <div class="section">
+            <div class="section-title">타이포그래피</div>
+            
+            <div class="form-group">
+                <label class="form-label">폰트</label>
+                <select class="select-input" id="fontFamily">
+                    <option value="Inter, sans-serif" selected>Inter (Modern)</option>
+                    <option value="Pretendard, sans-serif">Pretendard (Korean)</option>
+                    <option value="Roboto, sans-serif">Roboto (Google)</option>
+                    <option value="Noto Sans KR, sans-serif">Noto Sans KR</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 레이아웃 설정 -->
+        <div class="section">
+            <div class="section-title">레이아웃</div>
+            
+            <div class="form-group">
+                <label class="form-label">Border Radius</label>
+                <select class="select-input" id="borderRadius">
+                    <option value="4px">Sharp (4px)</option>
+                    <option value="8px" selected>Standard (8px)</option>
+                    <option value="12px">Soft (12px)</option>
+                    <option value="16px">Round (16px)</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- 액션 버튼들 -->
+        <div class="section">
+            <button class="btn" onclick="applyChanges()">🎨 변경사항 적용</button>
+            <button class="btn btn-secondary" onclick="resetToDefault()">🔄 기본값 복원</button>
+            <button class="btn btn-secondary" onclick="randomize()">🎲 랜덤 테마</button>
+        </div>
+
+        <!-- 내보내기 -->
+        <div class="export-section">
+            <div class="section-title">내보내기</div>
+            <button class="btn" onclick="exportCSS()">📄 CSS 다운로드</button>
+            <button class="btn btn-secondary" onclick="exportConfig()">⚙️ 설정 저장</button>
+        </div>
+    </div>
+
+    <div class="preview">
+        <div class="preview-controls">
+            <button class="preview-btn active" onclick="setPreviewMode('desktop')">🖥️ Desktop</button>
+            <button class="preview-btn" onclick="setPreviewMode('tablet')">📱 Tablet</button>
+            <button class="preview-btn" onclick="setPreviewMode('mobile')">📱 Mobile</button>
+        </div>
+
+        <div class="preview-content" id="previewContent">
+            <!-- 실제 템플릿 미리보기 -->
+            <div style="background: var(--bg-color); color: var(--text-color); font-family: var(--font-primary); min-height: 100%; padding: 40px;">
+                
+                <!-- 헤더 -->
+                <header style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 60px; padding-bottom: 20px; border-bottom: 1px solid #e5e7eb;">
+                    <div style="font-size: 24px; font-weight: 700; color: var(--primary-color);">
+                        <span id="previewCompanyName">TechCorp Solutions</span>
+                    </div>
+                    <nav style="display: flex; gap: 24px;">
+                        <a href="#" style="color: var(--text-color); text-decoration: none;">서비스</a>
+                        <a href="#" style="color: var(--text-color); text-decoration: none;">회사소개</a>
+                        <a href="#" style="color: var(--text-color); text-decoration: none;">연락처</a>
+                    </nav>
+                </header>
+
+                <!-- 히어로 섹션 -->
+                <section style="text-align: center; margin-bottom: 80px;">
+                    <h1 style="font-size: 48px; font-weight: 700; color: var(--text-color); margin-bottom: 20px; line-height: 1.2;" id="previewHeroMessage">
+                        혁신적인 기술로 미래를 만듭니다
+                    </h1>
+                    <p style="font-size: 20px; color: #6b7280; margin-bottom: 40px;">
+                        최첨단 IT 솔루션으로 비즈니스의 디지털 전환을 이끌어갑니다
+                    </p>
+                    <button style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); color: white; border: none; padding: 16px 32px; border-radius: var(--border-radius); font-size: 16px; font-weight: 600; cursor: pointer; margin-right: 16px;">
+                        서비스 시작하기
+                    </button>
+                    <button style="background: transparent; color: var(--primary-color); border: 2px solid var(--primary-color); padding: 14px 30px; border-radius: var(--border-radius); font-size: 16px; font-weight: 600; cursor: pointer;">
+                        자세히 알아보기
+                    </button>
+                </section>
+
+                <!-- 서비스 카드 -->
+                <section style="margin-bottom: 80px;">
+                    <h2 style="text-align: center; font-size: 36px; font-weight: 700; margin-bottom: 50px; color: var(--text-color);">
+                        핵심 서비스
+                    </h2>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 32px;">
+                        <div style="background: white; padding: 32px; border-radius: var(--border-radius); box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                            <div style="width: 48px; height: 48px; background: var(--primary-color); border-radius: var(--border-radius); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
+                                🚀
+                            </div>
+                            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px; color: var(--text-color);">
+                                클라우드 솔루션
+                            </h3>
+                            <p style="color: #6b7280; line-height: 1.6;">
+                                확장 가능하고 안전한 클라우드 인프라를 통해 비즈니스 연속성을 보장합니다.
+                            </p>
+                        </div>
+
+                        <div style="background: white; padding: 32px; border-radius: var(--border-radius); box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                            <div style="width: 48px; height: 48px; background: var(--secondary-color); border-radius: var(--border-radius); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
+                                🔧
+                            </div>
+                            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px; color: var(--text-color);">
+                                시스템 통합
+                            </h3>
+                            <p style="color: #6b7280; line-height: 1.6;">
+                                기존 시스템과 새로운 기술을 완벽하게 통합하여 효율성을 극대화합니다.
+                            </p>
+                        </div>
+
+                        <div style="background: white; padding: 32px; border-radius: var(--border-radius); box-shadow: 0 4px 20px rgba(0,0,0,0.1); border: 1px solid #e5e7eb;">
+                            <div style="width: 48px; height: 48px; background: var(--accent-color); border-radius: var(--border-radius); margin-bottom: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 20px;">
+                                📊
+                            </div>
+                            <h3 style="font-size: 20px; font-weight: 600; margin-bottom: 12px; color: var(--text-color);">
+                                데이터 분석
+                            </h3>
+                            <p style="color: #6b7280; line-height: 1.6;">
+                                고급 분석 도구로 데이터를 통찰력 있는 비즈니스 인텔리전스로 전환합니다.
+                            </p>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 통계 섹션 -->
+                <section style="background: linear-gradient(135deg, var(--primary-color), var(--secondary-color)); padding: 60px 40px; border-radius: var(--border-radius); margin-bottom: 80px; color: white; text-align: center;">
+                    <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px;">
+                        <div>
+                            <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">500+</div>
+                            <div style="opacity: 0.9;">성공한 프로젝트</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">99.9%</div>
+                            <div style="opacity: 0.9;">시스템 가동률</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">24/7</div>
+                            <div style="opacity: 0.9;">기술 지원</div>
+                        </div>
+                        <div>
+                            <div style="font-size: 36px; font-weight: 700; margin-bottom: 8px;">100+</div>
+                            <div style="opacity: 0.9;">만족한 고객</div>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 푸터 -->
+                <footer style="text-align: center; padding-top: 40px; border-top: 1px solid #e5e7eb; color: #6b7280;">
+                    <p>&copy; 2024 <span id="previewFooterName">TechCorp Solutions</span>. All rights reserved.</p>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 실시간 미리보기 업데이트
+        function applyChanges() {
+            const root = document.getElementById('previewContent');
+            
+            // CSS 변수 업데이트
+            root.style.setProperty('--primary-color', document.getElementById('primaryColor').value);
+            root.style.setProperty('--secondary-color', document.getElementById('secondaryColor').value);
+            root.style.setProperty('--accent-color', document.getElementById('accentColor').value);
+            root.style.setProperty('--font-primary', document.getElementById('fontFamily').value);
+            root.style.setProperty('--border-radius', document.getElementById('borderRadius').value);
+            
+            // 회사명 업데이트
+            const companyName = document.getElementById('companyName').value || 'Your Company';
+            document.getElementById('previewCompanyName').textContent = companyName;
+            document.getElementById('previewFooterName').textContent = companyName;
+            
+            // 히어로 메시지 업데이트
+            const heroMessage = document.getElementById('heroMessage').value || '혁신적인 기술로 미래를 만듭니다';
+            document.getElementById('previewHeroMessage').textContent = heroMessage;
+            
+            // 업종별 자동 조정
+            applyIndustrySettings();
+            
+            console.log('✅ 변경사항 적용 완료');
+        }
+
+        // 업종별 설정 적용
+        function applyIndustrySettings() {
+            const industry = document.getElementById('industry').value;
+            const industrySettings = {
+                enterprise: {
+                    primaryColor: '#1e40af',
+                    secondaryColor: '#64748b',
+                    accentColor: '#10b981'
+                },
+                startup: {
+                    primaryColor: '#6366f1',
+                    secondaryColor: '#f59e0b',
+                    accentColor: '#ef4444'
+                },
+                healthcare: {
+                    primaryColor: '#10b981',
+                    secondaryColor: '#3b82f6',
+                    accentColor: '#ffffff'
+                },
+                fintech: {
+                    primaryColor: '#1f2937',
+                    secondaryColor: '#fbbf24',
+                    accentColor: '#3b82f6'
+                },
+                ecommerce: {
+                    primaryColor: '#dc2626',
+                    secondaryColor: '#059669',
+                    accentColor: '#f59e0b'
+                },
+                saas: {
+                    primaryColor: '#0f172a',
+                    secondaryColor: '#00ff88',
+                    accentColor: '#fbbf24'
+                }
+            };
+
+            if (industrySettings[industry]) {
+                const settings = industrySettings[industry];
+                document.getElementById('primaryColor').value = settings.primaryColor;
+                document.getElementById('secondaryColor').value = settings.secondaryColor;
+                document.getElementById('accentColor').value = settings.accentColor;
+            }
+        }
+
+        // 기본값 복원
+        function resetToDefault() {
+            document.getElementById('companyName').value = 'TechCorp Solutions';
+            document.getElementById('industry').value = 'startup';
+            document.getElementById('heroMessage').value = '혁신적인 기술로 미래를 만듭니다';
+            document.getElementById('primaryColor').value = '#6366f1';
+            document.getElementById('secondaryColor').value = '#f59e0b';
+            document.getElementById('accentColor').value = '#ef4444';
+            document.getElementById('fontFamily').value = 'Inter, sans-serif';
+            document.getElementById('borderRadius').value = '8px';
+            applyChanges();
+        }
+
+        // 랜덤 테마 생성
+        function randomize() {
+            const colors = ['#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
+            const randomColor = () => colors[Math.floor(Math.random() * colors.length)];
+            
+            document.getElementById('primaryColor').value = randomColor();
+            document.getElementById('secondaryColor').value = randomColor();
+            document.getElementById('accentColor').value = randomColor();
+            
+            applyChanges();
+        }
+
+        // 반응형 미리보기
+        function setPreviewMode(mode) {
+            const preview = document.getElementById('previewContent');
+            const buttons = document.querySelectorAll('.preview-btn');
+            
+            buttons.forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            switch(mode) {
+                case 'desktop':
+                    preview.style.width = '100%';
+                    break;
+                case 'tablet':
+                    preview.style.width = '768px';
+                    preview.style.margin = '0 auto';
+                    break;
+                case 'mobile':
+                    preview.style.width = '375px';
+                    preview.style.margin = '0 auto';
+                    break;
+            }
+        }
+
+        // CSS 내보내기
+        function exportCSS() {
+            const css = `
+/* 자동 생성된 브랜드 CSS */
+:root {
+  --color-primary-500: ${document.getElementById('primaryColor').value};
+  --color-secondary-500: ${document.getElementById('secondaryColor').value};
+  --color-accent-500: ${document.getElementById('accentColor').value};
+  --font-family-primary: ${document.getElementById('fontFamily').value};
+  --border-radius-base: ${document.getElementById('borderRadius').value};
+  --gradient-tech: linear-gradient(135deg, var(--color-primary-500), var(--color-secondary-500));
+}
+
+.btn--primary {
+  background: var(--gradient-tech);
+  border-radius: var(--border-radius-base);
+}
+
+.card {
+  border-radius: var(--border-radius-base);
+}
+            `;
+            
+            const blob = new Blob([css], { type: 'text/css' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'brand-theme.css';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 설정 저장
+        function exportConfig() {
+            const config = {
+                companyName: document.getElementById('companyName').value,
+                industry: document.getElementById('industry').value,
+                heroMessage: document.getElementById('heroMessage').value,
+                colors: {
+                    primary: document.getElementById('primaryColor').value,
+                    secondary: document.getElementById('secondaryColor').value,
+                    accent: document.getElementById('accentColor').value
+                },
+                typography: {
+                    fontFamily: document.getElementById('fontFamily').value
+                },
+                layout: {
+                    borderRadius: document.getElementById('borderRadius').value
+                },
+                timestamp: new Date().toISOString()
+            };
+            
+            const blob = new Blob([JSON.stringify(config, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'brand-config.json';
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        // 로고 업로드 처리
+        document.getElementById('logoFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById('logoPreview').innerHTML = `
+                        <img src="${e.target.result}" class="logo-preview" alt="Logo Preview">
+                        <div style="font-size: 12px; color: #6b7280;">${file.name}</div>
+                    `;
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+
+        // 실시간 업데이트 이벤트 리스너
+        document.getElementById('companyName').addEventListener('input', applyChanges);
+        document.getElementById('heroMessage').addEventListener('input', applyChanges);
+        document.getElementById('primaryColor').addEventListener('change', applyChanges);
+        document.getElementById('secondaryColor').addEventListener('change', applyChanges);
+        document.getElementById('accentColor').addEventListener('change', applyChanges);
+        document.getElementById('fontFamily').addEventListener('change', applyChanges);
+        document.getElementById('borderRadius').addEventListener('change', applyChanges);
+        document.getElementById('industry').addEventListener('change', function() {
+            applyIndustrySettings();
+            applyChanges();
+        });
+
+        // 초기 로드
+        applyChanges();
+    </script>
+</body>
+</html>

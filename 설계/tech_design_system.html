@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IT/Tech 디자인 시스템</title>
+    <style>
+        /* ====================================
+           🎨 IT/TECH 디자인 시스템 CSS 변수
+           ==================================== */
+        :root {
+            /* === 컬러 시스템 === */
+            /* Primary Colors - 신뢰감 있는 파란색 계열 */
+            --color-primary-50: #eff6ff;
+            --color-primary-100: #dbeafe;
+            --color-primary-200: #bfdbfe;
+            --color-primary-300: #93c5fd;
+            --color-primary-400: #60a5fa;
+            --color-primary-500: #3b82f6;  /* 메인 브랜드 */
+            --color-primary-600: #2563eb;  /* 호버 상태 */
+            --color-primary-700: #1d4ed8;
+            --color-primary-800: #1e40af;
+            --color-primary-900: #1e3a8a;
+
+            /* Secondary Colors - 혁신적인 보라색 */
+            --color-secondary-50: #faf5ff;
+            --color-secondary-100: #f3e8ff;
+            --color-secondary-200: #e9d5ff;
+            --color-secondary-300: #d8b4fe;
+            --color-secondary-400: #c084fc;
+            --color-secondary-500: #a855f7;
+            --color-secondary-600: #9333ea;
+            --color-secondary-700: #7c3aed;
+            --color-secondary-800: #6b21a8;
+            --color-secondary-900: #581c87;
+
+            /* Accent Colors - 성공/경고/에러 */
+            --color-success-50: #ecfdf5;
+            --color-success-500: #10b981;
+            --color-success-600: #059669;
+            
+            --color-warning-50: #fffbeb;
+            --color-warning-500: #f59e0b;
+            --color-warning-600: #d97706;
+            
+            --color-error-50: #fef2f2;
+            --color-error-500: #ef4444;
+            --color-error-600: #dc2626;
+
+            /* Neutral Colors - 텍스트/배경 */
+            --color-neutral-0: #ffffff;
+            --color-neutral-50: #f8fafc;
+            --color-neutral-100: #f1f5f9;
+            --color-neutral-200: #e2e8f0;
+            --color-neutral-300: #cbd5e1;
+            --color-neutral-400: #94a3b8;
+            --color-neutral-500: #64748b;
+            --color-neutral-600: #475569;
+            --color-neutral-700: #334155;
+            --color-neutral-800: #1e293b;
+            --color-neutral-900: #0f172a;
+
+            /* Dark Theme Colors */
+            --color-dark-bg: #0f1419;
+            --color-dark-surface: #1a202c;
+            --color-dark-border: #2d3748;
+
+            /* === 타이포그래피 시스템 === */
+            --font-family-primary: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --font-family-secondary: 'JetBrains Mono', 'Fira Code', monospace;
+            --font-family-korean: 'Pretendard', 'Noto Sans KR', sans-serif;
+
+            /* Font Sizes */
+            --font-size-xs: 0.75rem;    /* 12px */
+            --font-size-sm: 0.875rem;   /* 14px */
+            --font-size-base: 1rem;     /* 16px */
+            --font-size-lg: 1.125rem;   /* 18px */
+            --font-size-xl: 1.25rem;    /* 20px */
+            --font-size-2xl: 1.5rem;    /* 24px */
+            --font-size-3xl: 1.875rem;  /* 30px */
+            --font-size-4xl: 2.25rem;   /* 36px */
+            --font-size-5xl: 3rem;      /* 48px */
+            --font-size-6xl: 3.75rem;   /* 60px */
+
+            /* Font Weights */
+            --font-weight-light: 300;
+            --font-weight-normal: 400;
+            --font-weight-medium: 500;
+            --font-weight-semibold: 600;
+            --font-weight-bold: 700;
+            --font-weight-extrabold: 800;
+
+            /* Line Heights */
+            --line-height-tight: 1.25;
+            --line-height-snug: 1.375;
+            --line-height-normal: 1.5;
+            --line-height-relaxed: 1.625;
+            --line-height-loose: 2;
+
+            /* === 스페이싱 시스템 === */
+            --space-0: 0;
+            --space-1: 0.25rem;   /* 4px */
+            --space-2: 0.5rem;    /* 8px */
+            --space-3: 0.75rem;   /* 12px */
+            --space-4: 1rem;      /* 16px */
+            --space-5: 1.25rem;   /* 20px */
+            --space-6: 1.5rem;    /* 24px */
+            --space-8: 2rem;      /* 32px */
+            --space-10: 2.5rem;   /* 40px */
+            --space-12: 3rem;     /* 48px */
+            --space-16: 4rem;     /* 64px */
+            --space-20: 5rem;     /* 80px */
+            --space-24: 6rem;     /* 96px */
+            --space-32: 8rem;     /* 128px */
+
+            /* === 그림자 & 효과 === */
+            --shadow-xs: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+            --shadow-sm: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            --shadow-base: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+            --shadow-md: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            --shadow-lg: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+            --shadow-xl: 0 25px 50px -12px rgb(0 0 0 / 0.25);
+            --shadow-glow: 0 0 0 1px rgb(59 130 246 / 0.5);
+
+            /* 테크 특화 그라데이션 */
+            --gradient-tech: linear-gradient(135deg, var(--color-primary-500) 0%, var(--color-secondary-500) 100%);
+            --gradient-glass: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0.05) 100%);
+
+            /* === 보더 & 레이디우스 === */
+            --border-width-thin: 1px;
+            --border-width-thick: 2px;
+            --border-width-thicker: 4px;
+
+            --radius-none: 0;
+            --radius-sm: 0.125rem;    /* 2px */
+            --radius-base: 0.25rem;   /* 4px */
+            --radius-md: 0.375rem;    /* 6px */
+            --radius-lg: 0.5rem;      /* 8px */
+            --radius-xl: 0.75rem;     /* 12px */
+            --radius-2xl: 1rem;       /* 16px */
+            --radius-full: 9999px;
+
+            /* === 애니메이션 === */
+            --duration-fast: 150ms;
+            --duration-normal: 300ms;
+            --duration-slow: 500ms;
+            --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+            --ease-out: cubic-bezier(0, 0, 0.2, 1);
+            --ease-in: cubic-bezier(0.4, 0, 1, 1);
+
+            /* === 브레이크포인트 (참고용) === */
+            --breakpoint-sm: 640px;
+            --breakpoint-md: 768px;
+            --breakpoint-lg: 1024px;
+            --breakpoint-xl: 1280px;
+            --breakpoint-2xl: 1536px;
+        }
+
+        /* ====================================
+           🌙 다크 테마 변수 오버라이드
+           ==================================== */
+        [data-theme="dark"] {
+            --color-neutral-0: var(--color-neutral-900);
+            --color-neutral-50: var(--color-neutral-800);
+            --color-neutral-100: var(--color-neutral-700);
+            --color-neutral-200: var(--color-neutral-600);
+            --color-neutral-800: var(--color-neutral-200);
+            --color-neutral-900: var(--color-neutral-100);
+        }
+
+        /* ====================================
+           📱 기본 스타일 & 리셋
+           ==================================== */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            font-family: var(--font-family-primary);
+            font-size: var(--font-size-base);
+            line-height: var(--line-height-normal);
+            color: var(--color-neutral-800);
+            background-color: var(--color-neutral-0);
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        /* ====================================
+           🎨 컴포넌트 라이브러리
+           ==================================== */
+
+        /* === 컨테이너 & 레이아웃 === */
+        .container {
+            width: 100%;
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 var(--space-4);
+        }
+
+        .grid {
+            display: grid;
+            gap: var(--space-6);
+        }
+
+        .grid-cols-1 { grid-template-columns: repeat(1, 1fr); }
+        .grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+        .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+
+        .flex {
+            display: flex;
+        }
+
+        .flex-col {
+            flex-direction: column;
+        }
+
+        .items-center {
+            align-items: center;
+        }
+
+        .justify-center {
+            justify-content: center;
+        }
+
+        .justify-between {
+            justify-content: space-between;
+        }
+
+        /* === 타이포그래피 컴포넌트 === */
+        .text-xs { font-size: var(--font-size-xs); }
+        .text-sm { font-size: var(--font-size-sm); }
+        .text-base { font-size: var(--font-size-base); }
+        .text-lg { font-size: var(--font-size-lg); }
+        .text-xl { font-size: var(--font-size-xl); }
+        .text-2xl { font-size: var(--font-size-2xl); }
+        .text-3xl { font-size: var(--font-size-3xl); }
+        .text-4xl { font-size: var(--font-size-4xl); }
+        .text-5xl { font-size: var(--font-size-5xl); }
+
+        .font-light { font-weight: var(--font-weight-light); }
+        .font-normal { font-weight: var(--font-weight-normal); }
+        .font-medium { font-weight: var(--font-weight-medium); }
+        .font-semibold { font-weight: var(--font-weight-semibold); }
+        .font-bold { font-weight: var(--font-weight-bold); }
+
+        .text-center { text-align: center; }
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
+
+        /* === 버튼 컴포넌트 === */
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: var(--space-3) var(--space-6);
+            font-size: var(--font-size-base);
+            font-weight: var(--font-weight-medium);
+            text-decoration: none;
+            border-radius: var(--radius-lg);
+            border: var(--border-width-thin) solid transparent;
+            cursor: pointer;
+            transition: all var(--duration-normal) var(--ease-in-out);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Primary Button */
+        .btn--primary {
+            background: var(--gradient-tech);
+            color: white;
+            border: none;
+        }
+
+        .btn--primary:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .btn--primary:active {
+            transform: translateY(0);
+        }
+
+        /* Secondary Button */
+        .btn--secondary {
+            background: transparent;
+            color: var(--color-primary-600);
+            border-color: var(--color-primary-300);
+        }
+
+        .btn--secondary:hover {
+            background: var(--color-primary-50);
+            border-color: var(--color-primary-500);
+        }
+
+        /* Outline Button */
+        .btn--outline {
+            background: transparent;
+            color: var(--color-neutral-700);
+            border-color: var(--color-neutral-300);
+        }
+
+        .btn--outline:hover {
+            background: var(--color-neutral-50);
+            border-color: var(--color-neutral-400);
+        }
+
+        /* Ghost Button */
+        .btn--ghost {
+            background: transparent;
+            color: var(--color-neutral-600);
+            border: none;
+        }
+
+        .btn--ghost:hover {
+            background: var(--color-neutral-100);
+            color: var(--color-neutral-800);
+        }
+
+        /* Button Sizes */
+        .btn--sm {
+            padding: var(--space-2) var(--space-4);
+            font-size: var(--font-size-sm);
+        }
+
+        .btn--lg {
+            padding: var(--space-4) var(--space-8);
+            font-size: var(--font-size-lg);
+        }
+
+        .btn--xl {
+            padding: var(--space-5) var(--space-10);
+            font-size: var(--font-size-xl);
+        }
+
+        /* === 카드 컴포넌트 === */
+        .card {
+            background: var(--color-neutral-0);
+            border-radius: var(--radius-xl);
+            box-shadow: var(--shadow-base);
+            overflow: hidden;
+            transition: all var(--duration-normal) var(--ease-in-out);
+            border: var(--border-width-thin) solid var(--color-neutral-200);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .card__header {
+            padding: var(--space-6);
+            border-bottom: var(--border-width-thin) solid var(--color-neutral-200);
+        }
+
+        .card__body {
+            padding: var(--space-6);
+        }
+
+        .card__footer {
+            padding: var(--space-6);
+            border-top: var(--border-width-thin) solid var(--color-neutral-200);
+            background: var(--color-neutral-50);
+        }
+
+        /* Tech Card Variant */
+        .card--tech {
+            background: var(--gradient-glass);
+            backdrop-filter: blur(10px);
+            border: var(--border-width-thin) solid rgba(255, 255, 255, 0.2);
+        }
+
+        .card--tech:hover {
+            border-color: rgba(59, 130, 246, 0.5);
+            box-shadow: 0 20px 40px rgba(59, 130, 246, 0.1);
+        }
+
+        /* === 배지 컴포넌트 === */
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: var(--space-1) var(--space-3);
+            font-size: var(--font-size-xs);
+            font-weight: var(--font-weight-medium);
+            border-radius: var(--radius-full);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .badge--primary {
+            background: var(--color-primary-100);
+            color: var(--color-primary-800);
+        }
+
+        .badge--success {
+            background: var(--color-success-50);
+            color: var(--color-success-600);
+        }
+
+        .badge--warning {
+            background: var(--color-warning-50);
+            color: var(--color-warning-600);
+        }
+
+        .badge--error {
+            background: var(--color-error-50);
+            color: var(--color-error-600);
+        }
+
+        /* === 입력 컴포넌트 === */
+        .input {
+            width: 100%;
+            padding: var(--space-3) var(--space-4);
+            font-size: var(--font-size-base);
+            border: var(--border-width-thin) solid var(--color-neutral-300);
+            border-radius: var(--radius-lg);
+            background: var(--color-neutral-0);
+            transition: all var(--duration-fast) var(--ease-in-out);
+        }
+
+        .input:focus {
+            outline: none;
+            border-color: var(--color-primary-500);
+            box-shadow: var(--shadow-glow);
+        }
+
+        .input::placeholder {
+            color: var(--color-neutral-400);
+        }
+
+        /* === 아이콘 컴포넌트 === */
+        .icon {
+            width: 1.25rem;
+            height: 1.25rem;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+        }
+
+        .icon--sm {
+            width: 1rem;
+            height: 1rem;
+        }
+
+        .icon--lg {
+            width: 1.5rem;
+            height: 1.5rem;
+        }
+
+        .icon--xl {
+            width: 2rem;
+            height: 2rem;
+        }
+
+        /* === 기술 특화 컴포넌트 === */
+
+        /* Code Block */
+        .code-block {
+            background: var(--color-neutral-900);
+            color: var(--color-neutral-100);
+            padding: var(--space-6);
+            border-radius: var(--radius-lg);
+            font-family: var(--font-family-secondary);
+            font-size: var(--font-size-sm);
+            overflow-x: auto;
+            position: relative;
+        }
+
+        .code-block::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--gradient-tech);
+        }
+
+        /* Stats Card */
+        .stats-card {
+            background: var(--color-neutral-0);
+            padding: var(--space-6);
+            border-radius: var(--radius-xl);
+            border-left: 4px solid var(--color-primary-500);
+            box-shadow: var(--shadow-base);
+        }
+
+        .stats-card__value {
+            font-size: var(--font-size-3xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-primary-600);
+            line-height: var(--line-height-tight);
+        }
+
+        .stats-card__label {
+            font-size: var(--font-size-sm);
+            color: var(--color-neutral-600);
+            margin-top: var(--space-1);
+        }
+
+        /* Tech Feature Box */
+        .feature-box {
+            padding: var(--space-8);
+            border-radius: var(--radius-2xl);
+            background: var(--gradient-glass);
+            border: var(--border-width-thin) solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            text-align: center;
+            transition: all var(--duration-normal) var(--ease-in-out);
+        }
+
+        .feature-box:hover {
+            transform: translateY(-8px);
+            border-color: rgba(59, 130, 246, 0.3);
+        }
+
+        .feature-box__icon {
+            width: 3rem;
+            height: 3rem;
+            margin: 0 auto var(--space-4);
+            padding: var(--space-3);
+            background: var(--gradient-tech);
+            border-radius: var(--radius-full);
+            color: white;
+        }
+
+        /* === 유틸리티 클래스 === */
+
+        /* 간격 */
+        .mb-0 { margin-bottom: var(--space-0); }
+        .mb-1 { margin-bottom: var(--space-1); }
+        .mb-2 { margin-bottom: var(--space-2); }
+        .mb-3 { margin-bottom: var(--space-3); }
+        .mb-4 { margin-bottom: var(--space-4); }
+        .mb-6 { margin-bottom: var(--space-6); }
+        .mb-8 { margin-bottom: var(--space-8); }
+        .mb-12 { margin-bottom: var(--space-12); }
+
+        .mt-0 { margin-top: var(--space-0); }
+        .mt-1 { margin-top: var(--space-1); }
+        .mt-2 { margin-top: var(--space-2); }
+        .mt-3 { margin-top: var(--space-3); }
+        .mt-4 { margin-top: var(--space-4); }
+        .mt-6 { margin-top: var(--space-6); }
+        .mt-8 { margin-top: var(--space-8); }
+        .mt-12 { margin-top: var(--space-12); }
+
+        /* 색상 */
+        .text-primary { color: var(--color-primary-600); }
+        .text-secondary { color: var(--color-secondary-600); }
+        .text-neutral-600 { color: var(--color-neutral-600); }
+        .text-neutral-800 { color: var(--color-neutral-800); }
+
+        .bg-primary { background-color: var(--color-primary-500); }
+        .bg-secondary { background-color: var(--color-secondary-500); }
+        .bg-neutral-50 { background-color: var(--color-neutral-50); }
+        .bg-neutral-100 { background-color: var(--color-neutral-100); }
+
+        /* === 반응형 === */
+        @media (min-width: 768px) {
+            .md\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+            .md\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+            .md\:text-4xl { font-size: var(--font-size-4xl); }
+            .md\:text-5xl { font-size: var(--font-size-5xl); }
+        }
+
+        @media (min-width: 1024px) {
+            .lg\:grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+            .lg\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+            .lg\:text-5xl { font-size: var(--font-size-5xl); }
+            .lg\:text-6xl { font-size: var(--font-size-6xl); }
+        }
+
+        /* === 데모 스타일 === */
+        .demo-section {
+            padding: var(--space-12) 0;
+            border-bottom: var(--border-width-thin) solid var(--color-neutral-200);
+        }
+
+        .demo-section:last-child {
+            border-bottom: none;
+        }
+
+        .demo-grid {
+            display: grid;
+            gap: var(--space-6);
+            margin-top: var(--space-8);
+        }
+
+        .demo-title {
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-bold);
+            color: var(--color-neutral-800);
+            margin-bottom: var(--space-2);
+        }
+
+        .demo-description {
+            color: var(--color-neutral-600);
+            margin-bottom: var(--space-6);
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            gap: var(--space-4);
+            margin-top: var(--space-4);
+        }
+
+        .color-swatch {
+            text-align: center;
+        }
+
+        .color-swatch__color {
+            width: 100%;
+            height: 60px;
+            border-radius: var(--radius-lg);
+            margin-bottom: var(--space-2);
+            border: var(--border-width-thin) solid var(--color-neutral-200);
+        }
+
+        .color-swatch__name {
+            font-size: var(--font-size-xs);
+            color: var(--color-neutral-600);
+            font-family: var(--font-family-secondary);
+        }
+
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="demo-section">
+            <h1 class="text-4xl md:text-5xl font-bold text-center mb-4">
+                IT/테크놀로지 디자인 시스템
+            </h1>
+            <p class="text-lg text-center text-neutral-600 mb-8">
+                신뢰성과 혁신성을 겸비한 브랜드 중립적 디자인 시스템
+            </p>
+            <div class="flex justify-center">
+                <button class="btn btn--primary btn--lg">시스템 살펴보기</button>
+            </div>
+        </header>
+
+        <!-- 컬러 시스템 -->
+        <section class="demo-section">
+            <h2 class="demo-title">🎨 컬러 시스템</h2>
+            <p class="demo-description">
+                신뢰감 있는 파란색을 메인으로, 혁신적인 보라색을 서브로 하는 기술 중심 컬러 팔레트
+            </p>
+
+            <h3 class="text-lg font-semibold mb-4">Primary Colors</h3>
+            <div class="color-palette">
+                <div class="color-swatch">
+                    <div class="color-swatch__color" style="background: var(--color-primary-100);"></div>
+                    <div class="color-swatch__name">primary-100</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-swatch__color" style="background: var(--color-primary-300);"></div>
+                    <div class="color-swatch__name">primary-300</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-swatch__color" style="background: var(--color-primary-500);"></div>
+                    <div class="color-swatch__name">primary-500</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-swatch__color" style="background: var(--color-primary-700);"></div>
+                    <div class="color-swatch__name">primary-700</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-swatch__color" style="background: var(--color-primary-900);"></div>
+                    <div class="color-swatch__name">primary-900</div>
+                </div>
+            </div>
+
+            <h3 class="text-lg font-semibold mb-4 mt-8">Secondary Colors</h3>
+            <div class="color-palette">
+                <div class="color-swatch">
+                    <div class="color-swatch__color" style="background: var(--color-secondary-100);"></div>
+                    <div class="color-swatch__name">secondary-100</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-swatch__color" style="background: var(--color-secondary-300);"></div>
+                    <div class="color-swatch__name">secondary-300</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-swatch__color" style="background: var(--color-secondary-500);"></div>
+                    <div class="color-swatch__name">secondary-500</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-swatch__color" style="background: var(--color-secondary-700);"></div>
+                    <div class="color-swatch__name">secondary-700</div>
+                </div>
+                <div class="color-swatch">
+                    <div class="color-swatch__color" style="background: var(--color-secondary-900);"></div>
+                    <div class="color-swatch__name">secondary-900</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 타이포그래피 시스템 -->
+        <section class="demo-section">
+            <h2 class="demo-title">📝 타이포그래피 시스템</h2>
+            <p class="demo-description">
+                가독성과 기술적 전문성을 강조하는 폰트 시스템
+            </p>
+
+            <div class="demo-grid md:grid-cols-2">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Primary Font: Inter</h3>
+                    <div class="space-y-2">
+                        <div class="text-xs font-light">Text XS Light (12px)</div>
+                        <div class="text-sm font-normal">Text SM Normal (14px)</div>
+                        <div class="text-base font-medium">Text Base Medium (16px)</div>
+                        <div class="text-lg font-semibold">Text LG Semibold (18px)</div>
+                        <div class="text-xl font-bold">Text XL Bold (20px)</div>
+                        <div class="text-2xl font-extrabold">Text 2XL ExtraBold (24px)</div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Secondary Font: JetBrains Mono</h3>
+                    <div class="code-block">
+                        <code>
+// 코드 전용 폰트<br>
+const techStack = {<br>
+&nbsp;&nbsp;frontend: 'React',<br>
+&nbsp;&nbsp;backend: 'Node.js',<br>
+&nbsp;&nbsp;database: 'PostgreSQL'<br>
+};
+                        </code>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 버튼 컴포넌트 -->
+        <section class="demo-section">
+            <h2 class="demo-title">🔘 버튼 컴포넌트</h2>
+            <p class="demo-description">
+                다양한 상황에 맞는 버튼 스타일과 크기 옵션
+            </p>
+
+            <div class="demo-grid">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">버튼 스타일</h3>
+                    <div class="flex flex-wrap gap-4">
+                        <button class="btn btn--primary">Primary</button>
+                        <button class="btn btn--secondary">Secondary</button>
+                        <button class="btn btn--outline">Outline</button>
+                        <button class="btn btn--ghost">Ghost</button>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">버튼 크기</h3>
+                    <div class="flex flex-wrap items-center gap-4">
+                        <button class="btn btn--primary btn--sm">Small</button>
+                        <button class="btn btn--primary">Default</button>
+                        <button class="btn btn--primary btn--lg">Large</button>
+                        <button class="btn btn--primary btn--xl">Extra Large</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 카드 컴포넌트 -->
+        <section class="demo-section">
+            <h2 class="demo-title">📋 카드 컴포넌트</h2>
+            <p class="demo-description">
+                콘텐츠를 구조화하고 정보를 효과적으로 전달하는 카드 시스템
+            </p>
+
+            <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+                <div class="card">
+                    <div class="card__header">
+                        <h3 class="font-semibold">기본 카드</h3>
+                    </div>
+                    <div class="card__body">
+                        <p class="text-neutral-600">표준 카드 컴포넌트입니다. 호버 시 부드러운 애니메이션 효과가 적용됩니다.</p>
+                    </div>
+                    <div class="card__footer">
+                        <button class="btn btn--sm btn--primary">더 보기</button>
+                    </div>
+                </div>
+
+                <div class="card card--tech">
+                    <div class="card__header">
+                        <h3 class="font-semibold">테크 카드</h3>
+                    </div>
+                    <div class="card__body">
+                        <p class="text-neutral-600">글래스모피즘 효과가 적용된 기술 중심 카드입니다.</p>
+                    </div>
+                    <div class="card__footer">
+                        <button class="btn btn--sm btn--secondary">자세히</button>
+                    </div>
+                </div>
+
+                <div class="feature-box">
+                    <div class="feature-box__icon">
+                        <svg class="icon" viewBox="0 0 24 24">
+                            <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                        </svg>
+                    </div>
+                    <h3 class="font-semibold mb-2">고성능</h3>
+                    <p class="text-sm text-neutral-600">최적화된 성능으로 빠른 서비스를 제공합니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 통계 & 배지 -->
+        <section class="demo-section">
+            <h2 class="demo-title">📊 통계 & 배지</h2>
+            <p class="demo-description">
+                수치 정보와 상태를 명확하게 표시하는 컴포넌트
+            </p>
+
+            <div class="demo-grid md:grid-cols-2">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">통계 카드</h3>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div class="stats-card">
+                            <div class="stats-card__value">99.9%</div>
+                            <div class="stats-card__label">가동률</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-card__value">24/7</div>
+                            <div class="stats-card__label">모니터링</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-card__value">1000+</div>
+                            <div class="stats-card__label">서버</div>
+                        </div>
+                        <div class="stats-card">
+                            <div class="stats-card__value">5ms</div>
+                            <div class="stats-card__label">응답시간</div>
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">배지 시스템</h3>
+                    <div class="space-y-4">
+                        <div class="flex flex-wrap gap-2">
+                            <span class="badge badge--primary">Active</span>
+                            <span class="badge badge--success">Connected</span>
+                            <span class="badge badge--warning">Pending</span>
+                            <span class="badge badge--error">Error</span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <span class="badge badge--primary">Frontend</span>
+                            <span class="badge badge--secondary">Backend</span>
+                            <span class="badge badge--success">Database</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 입력 컴포넌트 -->
+        <section class="demo-section">
+            <h2 class="demo-title">📝 입력 컴포넌트</h2>
+            <p class="demo-description">
+                사용자 입력을 위한 폼 요소들
+            </p>
+
+            <div class="demo-grid md:grid-cols-2 gap-8">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">기본 입력 필드</h3>
+                    <div class="space-y-4">
+                        <input type="text" class="input" placeholder="이름을 입력하세요">
+                        <input type="email" class="input" placeholder="이메일 주소">
+                        <input type="password" class="input" placeholder="비밀번호">
+                        <textarea class="input" rows="4" placeholder="메시지를 입력하세요"></textarea>
+                    </div>
+                </div>
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">예시 폼</h3>
+                    <div class="card">
+                        <div class="card__body">
+                            <div class="space-y-4">
+                                <input type="text" class="input" placeholder="회사명">
+                                <input type="email" class="input" placeholder="담당자 이메일">
+                                <select class="input">
+                                    <option>서비스 문의</option>
+                                    <option>기술 지원</option>
+                                    <option>파트너십</option>
+                                </select>
+                                <button class="btn btn--primary w-full">문의하기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- CSS 변수 활용 가이드 -->
+        <section class="demo-section">
+            <h2 class="demo-title">⚙️ CSS 변수 활용 가이드</h2>
+            <p class="demo-description">
+                브랜드 커스터마이징을 위한 CSS 변수 시스템
+            </p>
+
+            <div class="code-block">
+/* 브랜드 색상 변경 예시 */
+:root {
+  /* 기본 파란색에서 녹색으로 변경 */
+  --color-primary-500: #10b981;
+  --color-primary-600: #059669;
+  
+  /* 보조 색상 변경 */
+  --color-secondary-500: #f59e0b;
+  
+  /* 회사 폰트 적용 */
+  --font-family-primary: 'Noto Sans KR', sans-serif;
+}
+
+/* 다크 테마 활성화 */
+&lt;body data-theme="dark"&gt;
+
+/* 커스텀 그라데이션 */
+.custom-gradient {
+  background: linear-gradient(135deg, 
+    var(--color-primary-500) 0%, 
+    var(--color-secondary-500) 100%);
+}
+            </div>
+        </section>
+
+        <!-- 푸터 -->
+        <footer class="demo-section">
+            <div class="text-center">
+                <h2 class="text-2xl font-bold mb-4">🚀 디자인 시스템 준비 완료</h2>
+                <p class="text-neutral-600 mb-6">
+                    이 디자인 시스템을 기반으로 다양한 IT/테크 기업 웹사이트를 제작할 수 있습니다
+                </p>
+                <div class="flex justify-center gap-4">
+                    <button class="btn btn--primary">시작하기</button>
+                    <button class="btn btn--outline">문서 보기</button>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+    <script>
+        // 다크 테마 토글 (데모용)
+        function toggleTheme() {
+            const body = document.body;
+            const currentTheme = body.getAttribute('data-theme');
+            body.setAttribute('data-theme', currentTheme === 'dark' ? 'light' : 'dark');
+        }
+
+        // 버튼 클릭 이벤트 (데모용)
+        document.querySelectorAll('.btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                if (!e.target.onclick) {
+                    console.log('Button clicked:', e.target.textContent);
+                }
+            });
+        });
+    </script>
+</body>
+</html>
