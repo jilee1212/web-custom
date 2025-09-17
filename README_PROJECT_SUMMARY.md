@@ -159,17 +159,24 @@ insertSection(section) {
 ```
 project/
 ├── index.html                      # 메인 HTML 파일
+├── template-gallery.html           # 조합형 템플릿 갤러리 🆕
 ├── README_PROJECT_SUMMARY.md       # 이 문서
+├── combinatorial_template_system.md  # 조합형 시스템 설계서 🆕
+├── template_platform_design.md     # 플랫폼 설계서 🆕
 ├── css/
 │   ├── main.css                    # 메인 스타일시트
 │   ├── components.css              # 컴포넌트 스타일
 │   ├── customizer.css              # 커스터마이저 패널 스타일
 │   ├── industry-sections.css       # 업종별 섹션 스타일
+│   ├── template-styles.css         # 3개 스타일 시스템 (Modern/Classic/Bold) 🆕
 │   ├── components-fix.css          # 누락된 스타일 수정
 │   └── responsive.css              # 반응형 스타일
 ├── js/
 │   ├── customizer.js              # 메인 커스터마이저 (1000+ 라인)
-│   ├── industry-content.js        # 업종별 콘텐츠 매핑
+│   ├── industry-content.js        # 기존 업종별 콘텐츠 (6개)
+│   ├── industry-content-extended.js  # 확장된 업종별 콘텐츠 (8개) 🆕
+│   ├── base-templates.js          # 4개 베이스 템플릿 시스템 🆕
+│   ├── combinatorial-generator.js  # 조합형 생성 엔진 🆕
 │   └── main.js                    # 기본 JavaScript
 ├── 설계/
 │   ├── automation_implementation_guide.md  # 구현 가이드
@@ -234,6 +241,17 @@ http://localhost:8000
 - [x] 설정 파일 자동 생성
 - [x] 문서 자동 생성 (README, 배포 가이드)
 - [x] 완전한 배포 패키지 ZIP 다운로드
+
+### 🆕 조합형 템플릿 생성 시스템 (NEW!)
+- [x] **4개 베이스 템플릿** (Corporate, Creative, Commerce, Landing)
+- [x] **8개 업종별 콘텐츠** (Healthcare, Restaurant, Technology, Education, Finance, Real Estate, Legal, Fitness)
+- [x] **3개 디자인 스타일** (Modern, Classic, Bold)
+- [x] **96개 자동 생성 템플릿** (4×8×3 조합)
+- [x] **템플릿 갤러리 UI** (필터링, 미리보기, 선택)
+- [x] **실시간 템플릿 프리뷰** (데스크톱/태블릿/모바일)
+- [x] **조합형 생성 엔진** (CombinatorialTemplateGenerator)
+- [x] **확장된 업종 시스템** (ExtendedIndustryContentMapper)
+- [x] **스타일 시스템 통합** (Modern/Classic/Bold CSS)
 
 ## 🔮 향후 확장 가능성
 

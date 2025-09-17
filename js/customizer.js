@@ -26,8 +26,18 @@ class RealtimeCustomizer {
                 primary: '#007bff',
                 secondary: '#6c757d',
                 accent: '#28a745'
+            },
+            // 새로운 템플릿 시스템 지원
+            template: {
+                base: 'corporate',
+                industry: 'technology',
+                style: 'modern',
+                id: null
             }
         };
+
+        // 조합형 템플릿 생성기
+        this.templateGenerator = null;
 
         // 색상 업데이트에 디바운스 적용
         this.debouncedColorUpdate = debounce((colorType, colorValue) => {
@@ -56,13 +66,18 @@ class RealtimeCustomizer {
 
             const checkDependencies = () => {
                 attempts++;
-                console.log(`의존성 확인 시도 ${attempts}: BrandDNAExtractor=${!!window.BrandDNAExtractor}, TemplateCustomizer=${!!window.TemplateCustomizer}, IndustryContentMapper=${!!window.IndustryContentMapper}`);
+                console.log(`의존성 확인 시도 ${attempts}: BrandDNAExtractor=${!!window.BrandDNAExtractor}, TemplateCustomizer=${!!window.TemplateCustomizer}, IndustryContentMapper=${!!window.IndustryContentMapper}, CombinatorialTemplateGenerator=${!!window.CombinatorialTemplateGenerator}`);
 
-                if (window.BrandDNAExtractor && window.TemplateCustomizer && window.IndustryContentMapper) {
-                    console.log('✅ 모든 의존성 로드 완료');
+                if (window.BrandDNAExtractor && window.TemplateCustomizer && window.IndustryContentMapper && window.CombinatorialTemplateGenerator) {
+                    console.log('✅ 모든 의존성 로드 완료 (조합형 시스템 포함)');
                     this.brandExtractor = new BrandDNAExtractor();
                     this.templateSystem = window.TemplateCustomizer;
                     this.contentMapper = new IndustryContentMapper();
+
+                    // 새로운 조합형 템플릿 생성기 초기화
+                    this.templateGenerator = new CombinatorialTemplateGenerator();
+                    await this.templateGenerator.initialize();
+
                     resolve();
                 } else if (attempts >= maxAttempts) {
                     console.warn('⚠️ 의존성 로드 시간 초과, 기본 기능만 활성화');

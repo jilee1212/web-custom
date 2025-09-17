@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎨 조합형 템플릿 갤러리 - 96개 자동 생성 템플릿!</title>
+
+    <!-- 기존 CSS 로드 -->
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/main.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/customizer.css">
+    <link rel="stylesheet" href="css/template-styles.css">
+
+    <!-- 갤러리 전용 CSS -->
+    <style>
+        /* 갤러리 메인 스타일 */
+        .gallery-header {
+            background: linear-gradient(135deg, var(--color-primary-500, #3b82f6), var(--color-secondary-500, #1e40af));
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .gallery-header h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 1rem;
+        }
+
+        .gallery-header .stats {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-top: 2rem;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-number {
+            display: block;
+            font-size: 2.5rem;
+            font-weight: 700;
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        /* 필터 섹션 */
+        .filter-section {
+            background: white;
+            padding: 2rem 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            sticky: top;
+            z-index: 100;
+        }
+
+        .filter-tabs {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-tab {
+            padding: 0.75rem 1.5rem;
+            border: 2px solid var(--color-neutral-300);
+            background: white;
+            color: var(--color-text-secondary);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .filter-tab.active {
+            background: var(--color-primary-500);
+            color: white;
+            border-color: var(--color-primary-500);
+        }
+
+        .filter-tab:hover {
+            border-color: var(--color-primary-500);
+            color: var(--color-primary-500);
+        }
+
+        .filter-controls {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .filter-group label {
+            font-size: 0.9rem;
+            font-weight: 500;
+            color: var(--color-text-secondary);
+        }
+
+        .filter-select {
+            padding: 0.5rem 1rem;
+            border: 1px solid var(--color-neutral-300);
+            border-radius: 8px;
+            background: white;
+            font-size: 0.9rem;
+        }
+
+        /* 템플릿 그리드 */
+        .templates-section {
+            padding: 4rem 0;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 2rem;
+            margin-top: 2rem;
+        }
+
+        /* 템플릿 카드 */
+        .template-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .template-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+        }
+
+        .template-preview {
+            position: relative;
+            height: 200px;
+            background: var(--color-neutral-100);
+            overflow: hidden;
+        }
+
+        .template-preview iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+            transform: scale(0.5);
+            transform-origin: top left;
+            width: 200%;
+            height: 200%;
+        }
+
+        .template-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .template-card:hover .template-overlay {
+            opacity: 1;
+        }
+
+        .template-actions {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .action-btn {
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .preview-btn {
+            background: white;
+            color: var(--color-text-primary);
+        }
+
+        .select-btn {
+            background: var(--color-primary-500);
+            color: white;
+        }
+
+        .action-btn:hover {
+            transform: scale(1.05);
+        }
+
+        .template-info {
+            padding: 1.5rem;
+        }
+
+        .template-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--color-text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .template-description {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            margin-bottom: 1rem;
+            line-height: 1.4;
+        }
+
+        .template-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .template-tag {
+            padding: 0.25rem 0.75rem;
+            background: var(--color-neutral-100);
+            color: var(--color-text-secondary);
+            border-radius: 12px;
+            font-size: 0.8rem;
+        }
+
+        .template-combinations {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.85rem;
+            color: var(--color-text-secondary);
+        }
+
+        .combination-badge {
+            padding: 0.25rem 0.5rem;
+            background: var(--color-primary-100);
+            color: var(--color-primary-600);
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+        /* 로딩 상태 */
+        .loading-skeleton {
+            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+            background-size: 200% 100%;
+            animation: loading 1.5s infinite;
+            border-radius: 8px;
+            height: 200px;
+        }
+
+        @keyframes loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+
+        .no-results {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--color-text-secondary);
+        }
+
+        .no-results h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* 생성 통계 */
+        .generation-stats {
+            background: var(--color-neutral-50);
+            padding: 2rem 0;
+            text-align: center;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 2rem;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .stats-item {
+            text-align: center;
+        }
+
+        .stats-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--color-primary-500);
+        }
+
+        .stats-description {
+            font-size: 0.9rem;
+            color: var(--color-text-secondary);
+            margin-top: 0.5rem;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            .gallery-header h1 { font-size: 2rem; }
+            .gallery-header .stats { gap: 1.5rem; flex-direction: column; }
+            .filter-controls { flex-direction: column; gap: 1rem; }
+            .templates-grid { grid-template-columns: 1fr; }
+            .template-actions { flex-direction: column; }
+        }
+    </style>
+</head>
+<body>
+    <!-- 갤러리 헤더 -->
+    <header class="gallery-header">
+        <div class="container">
+            <h1>🎨 조합형 템플릿 갤러리</h1>
+            <p>4개 베이스 × 8개 업종 × 3개 스타일 = 자동 생성된 96개 유니크 템플릿!</p>
+
+            <div class="stats">
+                <div class="stat-item">
+                    <span class="stat-number" id="total-templates">96</span>
+                    <span class="stat-label">총 템플릿</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number" id="loaded-templates">0</span>
+                    <span class="stat-label">로드된 템플릿</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">8</span>
+                    <span class="stat-label">업종 카테고리</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-number">3</span>
+                    <span class="stat-label">디자인 스타일</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- 필터 섹션 -->
+    <section class="filter-section">
+        <div class="container">
+            <!-- 카테고리 탭 -->
+            <div class="filter-tabs">
+                <button class="filter-tab active" data-category="all">전체</button>
+                <button class="filter-tab" data-category="healthcare">의료</button>
+                <button class="filter-tab" data-category="restaurant">레스토랑</button>
+                <button class="filter-tab" data-category="technology">기술</button>
+                <button class="filter-tab" data-category="education">교육</button>
+                <button class="filter-tab" data-category="finance">금융</button>
+                <button class="filter-tab" data-category="realestate">부동산</button>
+                <button class="filter-tab" data-category="legal">법무</button>
+                <button class="filter-tab" data-category="fitness">헬스</button>
+            </div>
+
+            <!-- 세부 필터 -->
+            <div class="filter-controls">
+                <div class="filter-group">
+                    <label>베이스 타입</label>
+                    <select class="filter-select" id="base-filter">
+                        <option value="all">전체</option>
+                        <option value="corporate">기업형</option>
+                        <option value="creative">크리에이티브형</option>
+                        <option value="commerce">상업형</option>
+                        <option value="landing">랜딩형</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <label>디자인 스타일</label>
+                    <select class="filter-select" id="style-filter">
+                        <option value="all">전체</option>
+                        <option value="modern">모던</option>
+                        <option value="classic">클래식</option>
+                        <option value="bold">대담한</option>
+                    </select>
+                </div>
+                <div class="filter-group">
+                    <button class="btn btn-primary" onclick="generateAllTemplates()">
+                        🚀 전체 템플릿 생성 (96개)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 템플릿 그리드 섹션 -->
+    <section class="templates-section">
+        <div class="container">
+            <div class="templates-grid" id="templates-grid">
+                <!-- 템플릿 카드들이 여기에 동적으로 생성됩니다 -->
+            </div>
+
+            <!-- 결과 없음 메시지 -->
+            <div class="no-results" id="no-results" style="display: none;">
+                <h3>😅 조건에 맞는 템플릿이 없습니다</h3>
+                <p>다른 필터 조건을 선택해보세요.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 생성 통계 섹션 -->
+    <section class="generation-stats">
+        <div class="container">
+            <h2>📊 생성 통계</h2>
+            <div class="stats-grid" id="stats-grid">
+                <!-- 통계가 여기에 동적으로 생성됩니다 -->
+            </div>
+        </div>
+    </section>
+
+    <!-- 미리보기 모달 -->
+    <div class="preview-modal" id="preview-modal" style="display: none;">
+        <div class="modal-overlay" onclick="closePreviewModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="preview-title">템플릿 미리보기</h2>
+                <div class="device-selector">
+                    <button class="device-btn active" data-device="desktop">🖥️</button>
+                    <button class="device-btn" data-device="tablet">📱</button>
+                    <button class="device-btn" data-device="mobile">📱</button>
+                </div>
+                <button class="close-btn" onclick="closePreviewModal()">×</button>
+            </div>
+            <div class="modal-body">
+                <iframe id="preview-iframe" src="" frameborder="0"></iframe>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="selectCurrentTemplate()">
+                    이 템플릿으로 커스터마이징 시작
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 스크립트 로드 -->
+    <script src="js/base-templates.js"></script>
+    <script src="js/industry-content-extended.js"></script>
+    <script src="js/combinatorial-generator.js"></script>
+
+    <script>
+        // 갤러리 메인 컨트롤러
+        class TemplateGallery {
+            constructor() {
+                this.generator = null;
+                this.currentFilter = {
+                    category: 'all',
+                    base: 'all',
+                    style: 'all'
+                };
+                this.templates = [];
+                this.currentPreviewTemplate = null;
+
+                this.init();
+            }
+
+            async init() {
+                console.log('🎨 템플릿 갤러리 초기화 시작');
+
+                try {
+                    // 조합형 생성 엔진 초기화
+                    this.generator = new CombinatorialTemplateGenerator();
+                    await this.generator.initialize();
+
+                    // UI 이벤트 바인딩
+                    this.bindEvents();
+
+                    // 초기 템플릿 미리 로드 (각 카테고리별 1개씩)
+                    this.loadSampleTemplates();
+
+                    console.log('✅ 템플릿 갤러리 초기화 완료');
+                } catch (error) {
+                    console.error('❌ 갤러리 초기화 실패:', error);
+                }
+            }
+
+            // 이벤트 바인딩
+            bindEvents() {
+                // 카테고리 탭
+                document.querySelectorAll('.filter-tab').forEach(tab => {
+                    tab.addEventListener('click', (e) => {
+                        this.selectCategory(e.target.dataset.category);
+                    });
+                });
+
+                // 베이스/스타일 필터
+                document.getElementById('base-filter').addEventListener('change', (e) => {
+                    this.currentFilter.base = e.target.value;
+                    this.filterTemplates();
+                });
+
+                document.getElementById('style-filter').addEventListener('change', (e) => {
+                    this.currentFilter.style = e.target.value;
+                    this.filterTemplates();
+                });
+
+                // 디바이스 selector
+                document.querySelectorAll('.device-btn').forEach(btn => {
+                    btn.addEventListener('click', (e) => {
+                        this.switchPreviewDevice(e.target.dataset.device);
+                    });
+                });
+            }
+
+            // 샘플 템플릿 로드 (빠른 미리보기용)
+            async loadSampleTemplates() {
+                const sampleCombinations = [
+                    ['corporate', 'healthcare', 'modern'],
+                    ['creative', 'restaurant', 'classic'],
+                    ['commerce', 'technology', 'bold'],
+                    ['landing', 'education', 'modern'],
+                    ['corporate', 'finance', 'classic'],
+                    ['creative', 'fitness', 'bold']
+                ];
+
+                for (const [base, industry, style] of sampleCombinations) {
+                    const template = this.generator.createTemplate(base, industry, style);
+                    if (template) {
+                        this.templates.push(template);
+                    }
+                }
+
+                this.renderTemplates();
+                this.updateStats();
+            }
+
+            // 카테고리 선택
+            selectCategory(category) {
+                // 탭 UI 업데이트
+                document.querySelectorAll('.filter-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                document.querySelector(`[data-category="${category}"]`).classList.add('active');
+
+                this.currentFilter.category = category;
+                this.filterTemplates();
+            }
+
+            // 템플릿 필터링
+            filterTemplates() {
+                let filteredTemplates = this.templates;
+
+                // 카테고리 필터
+                if (this.currentFilter.category !== 'all') {
+                    filteredTemplates = filteredTemplates.filter(t =>
+                        t.combinations.industry === this.currentFilter.category
+                    );
+                }
+
+                // 베이스 필터
+                if (this.currentFilter.base !== 'all') {
+                    filteredTemplates = filteredTemplates.filter(t =>
+                        t.combinations.base === this.currentFilter.base
+                    );
+                }
+
+                // 스타일 필터
+                if (this.currentFilter.style !== 'all') {
+                    filteredTemplates = filteredTemplates.filter(t =>
+                        t.combinations.style === this.currentFilter.style
+                    );
+                }
+
+                this.renderTemplates(filteredTemplates);
+            }
+
+            // 템플릿 렌더링
+            renderTemplates(templates = this.templates) {
+                const grid = document.getElementById('templates-grid');
+                const noResults = document.getElementById('no-results');
+
+                if (templates.length === 0) {
+                    grid.innerHTML = '';
+                    noResults.style.display = 'block';
+                    return;
+                }
+
+                noResults.style.display = 'none';
+
+                grid.innerHTML = templates.map(template => `
+                    <div class="template-card" data-template-id="${template.id}">
+                        <div class="template-preview">
+                            <div class="loading-skeleton"></div>
+                            <div class="template-overlay">
+                                <div class="template-actions">
+                                    <button class="action-btn preview-btn" onclick="gallery.previewTemplate('${template.id}')">
+                                        미리보기
+                                    </button>
+                                    <button class="action-btn select-btn" onclick="gallery.selectTemplate('${template.id}')">
+                                        선택하기
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="template-info">
+                            <h3 class="template-title">${template.name}</h3>
+                            <p class="template-description">${template.description}</p>
+                            <div class="template-tags">
+                                ${template.metadata.tags.slice(0, 3).map(tag =>
+                                    `<span class="template-tag">${tag}</span>`
+                                ).join('')}
+                            </div>
+                            <div class="template-combinations">
+                                <div class="combination-badges">
+                                    <span class="combination-badge">${template.combinations.base}</span>
+                                    <span class="combination-badge">${template.combinations.style}</span>
+                                </div>
+                                <span class="template-id">${template.id}</span>
+                            </div>
+                        </div>
+                    </div>
+                `).join('');
+
+                document.getElementById('loaded-templates').textContent = templates.length;
+            }
+
+            // 템플릿 미리보기
+            previewTemplate(templateId) {
+                const template = this.templates.find(t => t.id === templateId);
+                if (!template) return;
+
+                this.currentPreviewTemplate = template;
+
+                // 임시 HTML 페이지 생성
+                const previewHtml = this.generatePreviewHTML(template);
+                const blob = new Blob([previewHtml], { type: 'text/html' });
+                const previewUrl = URL.createObjectURL(blob);
+
+                // 모달 열기
+                document.getElementById('preview-title').textContent = template.name;
+                document.getElementById('preview-iframe').src = previewUrl;
+                document.getElementById('preview-modal').style.display = 'block';
+                document.body.style.overflow = 'hidden';
+            }
+
+            // 미리보기 HTML 생성
+            generatePreviewHTML(template) {
+                return `
+                    <!DOCTYPE html>
+                    <html lang="ko">
+                    <head>
+                        <meta charset="UTF-8">
+                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                        <title>${template.name}</title>
+                        <style>
+                            ${template.css}
+                            body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+                            .base-template { class="${template.combinations.style}"; }
+                        </style>
+                    </head>
+                    <body class="style-${template.combinations.style}">
+                        ${template.html}
+                    </body>
+                    </html>
+                `;
+            }
+
+            // 템플릿 선택
+            selectTemplate(templateId) {
+                const template = this.templates.find(t => t.id === templateId);
+                if (!template) return;
+
+                // 메인 커스터마이저로 이동
+                const customizeUrl = `index.html?template=${templateId}&base=${template.combinations.base}&industry=${template.combinations.industry}&style=${template.combinations.style}`;
+                window.location.href = customizeUrl;
+            }
+
+            // 미리보기 모달 닫기
+            closePreviewModal() {
+                document.getElementById('preview-modal').style.display = 'none';
+                document.body.style.overflow = 'auto';
+
+                // URL 정리
+                const iframe = document.getElementById('preview-iframe');
+                if (iframe.src.startsWith('blob:')) {
+                    URL.revokeObjectURL(iframe.src);
+                }
+                iframe.src = '';
+            }
+
+            // 현재 미리보기 템플릿 선택
+            selectCurrentTemplate() {
+                if (this.currentPreviewTemplate) {
+                    this.selectTemplate(this.currentPreviewTemplate.id);
+                }
+            }
+
+            // 디바이스 전환
+            switchPreviewDevice(device) {
+                document.querySelectorAll('.device-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                document.querySelector(`[data-device="${device}"]`).classList.add('active');
+
+                const iframe = document.getElementById('preview-iframe');
+                const modal = document.querySelector('.modal-content');
+
+                switch (device) {
+                    case 'desktop':
+                        modal.style.width = '90%';
+                        modal.style.height = '90%';
+                        break;
+                    case 'tablet':
+                        modal.style.width = '768px';
+                        modal.style.height = '90%';
+                        break;
+                    case 'mobile':
+                        modal.style.width = '375px';
+                        modal.style.height = '90%';
+                        break;
+                }
+            }
+
+            // 통계 업데이트
+            updateStats() {
+                if (!this.generator) return;
+
+                const stats = this.generator.getGenerationStats();
+
+                const statsGrid = document.getElementById('stats-grid');
+                statsGrid.innerHTML = `
+                    <div class="stats-item">
+                        <div class="stats-value">${stats.bases}</div>
+                        <div class="stats-description">베이스 템플릿</div>
+                    </div>
+                    <div class="stats-item">
+                        <div class="stats-value">${stats.industries}</div>
+                        <div class="stats-description">업종 카테고리</div>
+                    </div>
+                    <div class="stats-item">
+                        <div class="stats-value">${stats.styles}</div>
+                        <div class="stats-description">디자인 스타일</div>
+                    </div>
+                    <div class="stats-item">
+                        <div class="stats-value">${stats.generated}</div>
+                        <div class="stats-description">생성된 템플릿</div>
+                    </div>
+                `;
+            }
+        }
+
+        // 전체 템플릿 생성 (96개)
+        async function generateAllTemplates() {
+            const btn = event.target;
+            const originalText = btn.textContent;
+
+            btn.textContent = '생성 중...';
+            btn.disabled = true;
+
+            try {
+                console.log('🚀 전체 96개 템플릿 생성 시작...');
+
+                const allTemplates = gallery.generator.generateAllCombinations();
+                gallery.templates = allTemplates;
+                gallery.renderTemplates();
+                gallery.updateStats();
+
+                btn.textContent = '✅ 생성 완료!';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }, 2000);
+
+            } catch (error) {
+                console.error('템플릿 생성 오류:', error);
+                btn.textContent = '❌ 오류 발생';
+                setTimeout(() => {
+                    btn.textContent = originalText;
+                    btn.disabled = false;
+                }, 2000);
+            }
+        }
+
+        // 모달 닫기 함수들
+        function closePreviewModal() {
+            gallery.closePreviewModal();
+        }
+
+        function selectCurrentTemplate() {
+            gallery.selectCurrentTemplate();
+        }
+
+        // 갤러리 초기화
+        const gallery = new TemplateGallery();
+
+        // CSS 스타일 추가 (모달용)
+        const modalStyles = `
+            .preview-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                z-index: 10000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+
+            .modal-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+            }
+
+            .modal-content {
+                position: relative;
+                width: 90%;
+                height: 90%;
+                background: white;
+                border-radius: 12px;
+                overflow: hidden;
+                display: flex;
+                flex-direction: column;
+                max-width: 1200px;
+            }
+
+            .modal-header {
+                padding: 1rem 2rem;
+                border-bottom: 1px solid #eee;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: var(--color-primary-500);
+                color: white;
+            }
+
+            .modal-header h2 {
+                margin: 0;
+                font-size: 1.25rem;
+            }
+
+            .device-selector {
+                display: flex;
+                gap: 0.5rem;
+            }
+
+            .device-btn {
+                padding: 0.5rem;
+                border: 1px solid rgba(255,255,255,0.3);
+                background: transparent;
+                color: white;
+                border-radius: 4px;
+                cursor: pointer;
+                transition: all 0.2s ease;
+            }
+
+            .device-btn.active,
+            .device-btn:hover {
+                background: rgba(255,255,255,0.2);
+            }
+
+            .close-btn {
+                background: none;
+                border: none;
+                color: white;
+                font-size: 1.5rem;
+                cursor: pointer;
+                padding: 0.5rem;
+                border-radius: 4px;
+                transition: background 0.2s ease;
+            }
+
+            .close-btn:hover {
+                background: rgba(255,255,255,0.2);
+            }
+
+            .modal-body {
+                flex: 1;
+                position: relative;
+            }
+
+            .modal-body iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+            }
+
+            .modal-footer {
+                padding: 1rem 2rem;
+                border-top: 1px solid #eee;
+                text-align: center;
+            }
+        `;
+
+        // 스타일 추가
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = modalStyles;
+        document.head.appendChild(styleSheet);
+    </script>
+</body>
+</html>
