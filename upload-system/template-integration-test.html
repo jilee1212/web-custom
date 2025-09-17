@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>템플릿 연동 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .panel {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 30px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 20px 0;
+            cursor: pointer;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+            background: #f8f9ff;
+        }
+        .file-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 2px;
+            font-size: 12px;
+        }
+        .btn:hover { background: #0056b3; }
+        .btn.success { background: #28a745; }
+        .btn.danger { background: #dc3545; }
+
+        .template-preview {
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            overflow: hidden;
+            max-height: 500px;
+            position: relative;
+        }
+        .template-preview iframe {
+            width: 100%;
+            height: 400px;
+            border: none;
+        }
+        .section-mapping {
+            margin-top: 10px;
+        }
+        .section-item {
+            background: #e7f3ff;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .results {
+            margin-top: 15px;
+            padding: 15px;
+            background: #d4edda;
+            border-radius: 8px;
+            border-left: 4px solid #28a745;
+        }
+        .status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        .status.ready { background: #d4edda; color: #155724; }
+        .status.processing { background: #fff3cd; color: #856404; }
+        .status.completed { background: #cce7ff; color: #004085; }
+    </style>
+</head>
+<body>
+    <h1>🔗 템플릿 연동 테스트</h1>
+
+    <div class="container">
+        <!-- 왼쪽 패널: 파일 업로드 및 분석 -->
+        <div class="panel">
+            <h2>📁 파일 업로드 & 분석</h2>
+
+            <div class="upload-area" id="uploadArea">
+                <h4>파일을 드래그하거나 클릭하세요</h4>
+                <p>지원: TXT, 이미지, PDF, DOC</p>
+                <input type="file" id="fileInput" multiple style="display: none;">
+            </div>
+
+            <div>
+                <button class="btn" onclick="clearFiles()">초기화</button>
+                <button class="btn success" onclick="analyzeContent()">컨텐츠 분석</button>
+                <button class="btn" onclick="generateWebsite()">웹사이트 생성</button>
+            </div>
+
+            <div id="fileList"></div>
+
+            <div class="section-mapping" id="sectionMapping" style="display: none;">
+                <h4>📋 섹션 매칭 결과</h4>
+                <div id="mappingResults"></div>
+            </div>
+        </div>
+
+        <!-- 오른쪽 패널: 템플릿 미리보기 -->
+        <div class="panel">
+            <h2>🎨 템플릿 미리보기</h2>
+
+            <div style="margin-bottom: 15px;">
+                <span>상태: </span>
+                <span class="status ready" id="templateStatus">준비됨</span>
+                <button class="btn" onclick="reloadTemplate()">새로고침</button>
+                <button class="btn" onclick="openInNewTab()">새 탭에서 열기</button>
+            </div>
+
+            <div class="template-preview">
+                <iframe id="templateFrame" src="../templates/modified/eventre-business-test/index.html"></iframe>
+            </div>
+
+            <div class="results" id="results" style="display: none;">
+                <h4>✅ 생성 완료</h4>
+                <p id="resultMessage">웹사이트가 성공적으로 생성되었습니다!</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let uploadedFiles = [];
+        let analysisResults = null;
+
+        // DOM 요소들
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const sectionMapping = document.getElementById('sectionMapping');
+        const mappingResults = document.getElementById('mappingResults');
+        const templateStatus = document.getElementById('templateStatus');
+        const templateFrame = document.getElementById('templateFrame');
+        const results = document.getElementById('results');
+        const resultMessage = document.getElementById('resultMessage');
+
+        // 이벤트 리스너 설정
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '#f0f7ff';
+        });
+        uploadArea.addEventListener('dragleave', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '';
+        });
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.style.backgroundColor = '';
+            const files = Array.from(e.dataTransfer.files);
+            processFiles(files);
+        });
+        fileInput.addEventListener('change', (e) => {
+            const files = Array.from(e.target.files);
+            processFiles(files);
+        });
+
+        // 파일 처리 함수
+        async function processFiles(files) {
+            for (const file of files) {
+                try {
+                    const result = await processFile(file);
+                    uploadedFiles.push(result);
+                    displayFile(result);
+                } catch (error) {
+                    console.error('파일 처리 오류:', error);
+                }
+            }
+        }
+
+        async function processFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                const result = {
+                    id: Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    name: file.name,
+                    size: file.size,
+                    type: getFileType(file.name),
+                    content: null
+                };
+
+                if (file.type.startsWith('text/')) {
+                    reader.onload = (e) => {
+                        result.content = {
+                            type: 'text',
+                            text: e.target.result
+                        };
+                        resolve(result);
+                    };
+                    reader.readAsText(file);
+                } else if (file.type.startsWith('image/')) {
+                    reader.onload = (e) => {
+                        result.content = {
+                            type: 'image',
+                            dataUrl: e.target.result
+                        };
+                        resolve(result);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    result.content = { type: 'document', text: `[${file.name}]` };
+                    resolve(result);
+                }
+
+                reader.onerror = () => reject(new Error('파일 읽기 실패'));
+            });
+        }
+
+        function getFileType(fileName) {
+            const ext = fileName.toLowerCase().split('.').pop();
+            if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'image';
+            if (['txt', 'pdf', 'doc', 'docx'].includes(ext)) return 'document';
+            return 'unknown';
+        }
+
+        function displayFile(file) {
+            const div = document.createElement('div');
+            div.className = 'file-item';
+            div.innerHTML = `
+                <strong>${file.name}</strong> (${formatFileSize(file.size)})
+                <span style="float: right; color: #666;">${file.type}</span>
+            `;
+            fileList.appendChild(div);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+        }
+
+        // 컨텐츠 분석
+        function analyzeContent() {
+            if (uploadedFiles.length === 0) {
+                alert('먼저 파일을 업로드하세요.');
+                return;
+            }
+
+            templateStatus.className = 'status processing';
+            templateStatus.textContent = '분석중...';
+
+            // 간단한 섹션 매칭 로직
+            const sections = {};
+            uploadedFiles.forEach(file => {
+                const fileName = file.name.toLowerCase();
+                let section = 'general';
+
+                if (fileName.includes('회사') || fileName.includes('소개') ||
+                    (file.content && file.content.text && file.content.text.includes('회사'))) {
+                    section = 'hero';
+                } else if (fileName.includes('서비스') ||
+                          (file.content && file.content.text && file.content.text.includes('서비스'))) {
+                    section = 'services';
+                } else if (fileName.includes('팀') ||
+                          (file.content && file.content.text && file.content.text.includes('팀'))) {
+                    section = 'team';
+                } else if (fileName.includes('연락') ||
+                          (file.content && file.content.text && file.content.text.includes('연락'))) {
+                    section = 'contact';
+                } else if (file.type === 'image') {
+                    section = 'gallery';
+                }
+
+                if (!sections[section]) {
+                    sections[section] = [];
+                }
+                sections[section].push(file);
+            });
+
+            analysisResults = sections;
+            displayMappingResults(sections);
+
+            setTimeout(() => {
+                templateStatus.className = 'status ready';
+                templateStatus.textContent = '분석완료';
+            }, 1000);
+        }
+
+        function displayMappingResults(sections) {
+            sectionMapping.style.display = 'block';
+            mappingResults.innerHTML = '';
+
+            for (const [sectionName, files] of Object.entries(sections)) {
+                const div = document.createElement('div');
+                div.className = 'section-item';
+                div.innerHTML = `
+                    <strong>${getSectionDisplayName(sectionName)}</strong>
+                    <div style="font-size: 12px; margin-top: 5px;">
+                        ${files.map(f => f.name).join(', ')}
+                    </div>
+                `;
+                mappingResults.appendChild(div);
+            }
+        }
+
+        function getSectionDisplayName(section) {
+            const names = {
+                'hero': '🏠 메인 섹션',
+                'services': '⚙️ 서비스',
+                'team': '👥 팀 소개',
+                'contact': '📞 연락처',
+                'gallery': '🖼️ 갤러리',
+                'general': '📄 일반'
+            };
+            return names[section] || section;
+        }
+
+        // 웹사이트 생성
+        function generateWebsite() {
+            if (!analysisResults) {
+                alert('먼저 컨텐츠 분석을 수행하세요.');
+                return;
+            }
+
+            templateStatus.className = 'status processing';
+            templateStatus.textContent = '생성중...';
+
+            // 실제로는 분석된 컨텐츠를 템플릿에 적용하는 로직이 필요
+            // 여기서는 시뮬레이션만 수행
+            setTimeout(() => {
+                templateStatus.className = 'status completed';
+                templateStatus.textContent = '생성완료';
+
+                results.style.display = 'block';
+                resultMessage.innerHTML = `
+                    <p>✅ 웹사이트 생성이 완료되었습니다!</p>
+                    <p><strong>처리된 파일:</strong> ${uploadedFiles.length}개</p>
+                    <p><strong>매칭된 섹션:</strong> ${Object.keys(analysisResults).length}개</p>
+                    <p><strong>사용된 템플릿:</strong> Eventre Business</p>
+                `;
+
+                // 템플릿 새로고침
+                reloadTemplate();
+            }, 2000);
+        }
+
+        // 유틸리티 함수들
+        function clearFiles() {
+            uploadedFiles = [];
+            analysisResults = null;
+            fileList.innerHTML = '';
+            sectionMapping.style.display = 'none';
+            results.style.display = 'none';
+            fileInput.value = '';
+            templateStatus.className = 'status ready';
+            templateStatus.textContent = '준비됨';
+        }
+
+        function reloadTemplate() {
+            const currentSrc = templateFrame.src;
+            templateFrame.src = '';
+            setTimeout(() => {
+                templateFrame.src = currentSrc;
+            }, 100);
+        }
+
+        function openInNewTab() {
+            const templateUrl = '../templates/modified/eventre-business-test/index.html';
+            window.open(templateUrl, '_blank');
+        }
+
+        // 초기화
+        console.log('템플릿 연동 테스트 페이지가 로드되었습니다.');
+        console.log('업로드 가능한 파일:', uploadedFiles);
+    </script>
+</body>
+</html>

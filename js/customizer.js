@@ -76,7 +76,11 @@ class RealtimeCustomizer {
 
                     // 새로운 조합형 템플릿 생성기 초기화
                     this.templateGenerator = new CombinatorialTemplateGenerator();
-                    await this.templateGenerator.initialize();
+                    try {
+                        await this.templateGenerator.initialize();
+                    } catch (error) {
+                        console.warn('⚠️ 템플릿 생성기 초기화 실패:', error);
+                    }
 
                     resolve();
                 } else if (attempts >= maxAttempts) {
@@ -288,7 +292,7 @@ class RealtimeCustomizer {
                 }
             }
 
-            // 2. 업종별 콘텐츠 매핑 적용
+            // 2. 업종별 콘텐츠 매핑 적용 (기존 시스템)
             if (this.contentMapper) {
                 console.log('📝 업종별 콘텐츠 적용 중...');
                 this.contentMapper.applyContentToDOM(industry);
@@ -296,7 +300,21 @@ class RealtimeCustomizer {
                 console.log('✅ 콘텐츠 매핑 완료');
             }
 
-            // 3. 포트폴리오 필터 업데이트
+            // 3. 새로운 컨텐츠 채우기 시스템 적용
+            if (window.ContentFiller) {
+                console.log('📝 업종별 기본 텍스트 적용 중...');
+                const contentFiller = new window.ContentFiller();
+                const customInfo = {
+                    companyName: this.currentData.companyName,
+                    contact: {
+                        email: `info@${this.currentData.companyName.toLowerCase().replace(/\s+/g, '')}.com`
+                    }
+                };
+                contentFiller.fillContentByIndustry(industry, customInfo);
+                console.log('✅ 기본 텍스트 채우기 완료');
+            }
+
+            // 4. 포트폴리오 필터 업데이트
             this.updatePortfolioFilters(industry);
 
             this.showNotification(`${industry} 업종 템플릿이 적용되었습니다.`, 'success');

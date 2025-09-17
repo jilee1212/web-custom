@@ -1,0 +1,1135 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🤖 AI 기반 웹사이트 자동 생성 시스템</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 450px 1fr;
+            height: 100vh;
+            gap: 0;
+        }
+
+        .control-panel {
+            background: white;
+            overflow-y: auto;
+            border-right: 1px solid #ddd;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .panel-header h2 {
+            font-size: 1.3rem;
+            margin-bottom: 5px;
+        }
+
+        .panel-header p {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+
+        .panel-content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section h3 {
+            color: #333;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-indicator {
+            padding: 3px 10px;
+            border-radius: 15px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            margin-left: auto;
+        }
+
+        .status-checking { background: #feebc8; color: #744210; }
+        .status-ready { background: #c6f6d5; color: #22543d; }
+        .status-downloading { background: #bee3f8; color: #2c5282; }
+        .status-error { background: #fed7d7; color: #742a2a; }
+        .status-analyzing { background: #e9d8fd; color: #553c9a; }
+        .status-completed { background: #c6f6d5; color: #22543d; }
+
+        .upload-zone {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 3px;
+            transition: all 0.3s ease;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn:hover { background: #5a67d8; transform: translateY(-1px); }
+        .btn:disabled { background: #cbd5e0; cursor: not-allowed; transform: none; }
+        .btn.success { background: #48bb78; }
+        .btn.warning { background: #ed8936; }
+        .btn.danger { background: #f56565; }
+
+        .file-item {
+            background: linear-gradient(90deg, #f8f9ff, #fff);
+            border-left: 4px solid #667eea;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            transition: transform 0.2s ease;
+        }
+
+        .file-item:hover {
+            transform: translateX(2px);
+        }
+
+        .ai-analysis-result {
+            background: linear-gradient(90deg, #e6fffa, #f0fff4);
+            border-left: 4px solid #38b2ac;
+            padding: 12px;
+            margin: 8px 0;
+            border-radius: 6px;
+            font-size: 0.85rem;
+        }
+
+        .section-mapping {
+            background: linear-gradient(90deg, #fef5e7, #fffaf0);
+            border-left: 4px solid #ed8936;
+            padding: 10px;
+            margin: 6px 0;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .confidence-badge {
+            display: inline-block;
+            background: #667eea;
+            color: white;
+            padding: 2px 6px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            margin-left: 5px;
+        }
+
+        .log-area {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.75rem;
+            max-height: 150px;
+            overflow-y: auto;
+            border-radius: 6px;
+            border: 1px solid #4a5568;
+        }
+
+        .log-entry {
+            margin-bottom: 2px;
+            opacity: 0;
+            animation: fadeInLog 0.5s ease forwards;
+        }
+
+        @keyframes fadeInLog {
+            to { opacity: 1; }
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 12px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #f7fafc, #edf2f7);
+            padding: 10px;
+            border-radius: 6px;
+            text-align: center;
+            border: 1px solid #e2e8f0;
+        }
+
+        .stat-number {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .progress-bar {
+            background: #edf2f7;
+            height: 6px;
+            width: 100%;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 10px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 3px;
+        }
+
+        .preview-panel {
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            background: #f8f9fa;
+            padding: 12px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .preview-header h3 {
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        .preview-controls {
+            display: flex;
+            gap: 8px;
+        }
+
+        .mini-btn {
+            padding: 6px 10px;
+            font-size: 0.75rem;
+            margin: 0;
+            width: auto;
+        }
+
+        .preview-frame {
+            flex: 1;
+            border: none;
+            width: 100%;
+        }
+
+        .ai-status-card {
+            background: linear-gradient(135deg, #e6fffa, #f0fff4);
+            border: 1px solid #38b2ac;
+            border-radius: 8px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .model-info {
+            font-size: 0.8rem;
+            color: #2d3748;
+            margin-top: 8px;
+        }
+
+        .download-progress {
+            margin-top: 10px;
+        }
+
+        .service-preview, .team-preview {
+            background: #f8f9ff;
+            border: 1px solid #e2e8f0;
+            border-radius: 4px;
+            padding: 8px;
+            margin: 4px 0;
+            font-size: 0.8rem;
+        }
+
+        .service-preview h5, .team-preview h5 {
+            color: #667eea;
+            margin-bottom: 4px;
+            font-size: 0.85rem;
+        }
+
+        #fileInput { display: none; }
+
+        .spinning {
+            animation: spin 2s linear infinite;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- AI 제어 패널 -->
+        <div class="control-panel">
+            <div class="panel-header">
+                <h2>🤖 AI 웹사이트 자동 생성</h2>
+                <p>Ollama 로컬 AI + 스마트 분석</p>
+            </div>
+
+            <div class="panel-content">
+                <!-- AI 상태 확인 -->
+                <div class="section">
+                    <h3>
+                        🔧 AI 시스템 상태
+                        <span class="status-indicator status-checking" id="aiStatus">확인 중...</span>
+                    </h3>
+
+                    <div class="ai-status-card" id="aiStatusCard">
+                        <div><strong>연결 상태:</strong> <span id="connectionStatus">확인 중...</span></div>
+                        <div><strong>모델:</strong> <span id="modelStatus">-</span></div>
+                        <div class="model-info" id="modelInfo">
+                            Ollama가 설치되고 모델이 다운로드되어야 합니다.
+                        </div>
+
+                        <div style="margin-top: 12px;">
+                            <button class="btn" onclick="checkAIStatus()">🔄 상태 확인</button>
+                            <button class="btn success" onclick="downloadModel()" id="downloadBtn" disabled>📥 모델 다운로드</button>
+                        </div>
+
+                        <div class="download-progress" id="downloadProgress" style="display: none;">
+                            <div>모델 다운로드 중...</div>
+                            <div class="progress-bar">
+                                <div class="progress-fill" id="downloadProgressFill"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 파일 업로드 -->
+                <div class="section">
+                    <h3>📁 파일 업로드</h3>
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-icon">☁️</div>
+                        <div><strong>파일을 드래그하거나 클릭</strong></div>
+                        <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+                            TXT, PDF, DOC, 이미지, 비디오
+                        </div>
+                        <input type="file" id="fileInput" multiple accept=".txt,.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.mp4,.webm">
+                    </div>
+
+                    <div style="margin-top: 12px;">
+                        <button class="btn success" onclick="loadAdvancedSample()">🏢 고급 비즈니스 샘플</button>
+                        <button class="btn" onclick="clearAll()">🗑️ 전체 초기화</button>
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <div style="font-size: 0.85rem; color: #666;">
+                            업로드된 파일: <span id="fileCount">0</span>개
+                        </div>
+                        <div id="uploadedFilesList"></div>
+                    </div>
+                </div>
+
+                <!-- AI 분석 -->
+                <div class="section">
+                    <h3>
+                        🧠 AI 컨텐츠 분석
+                        <span class="status-indicator status-ready" id="analysisStatus">대기 중</span>
+                    </h3>
+
+                    <button class="btn" onclick="analyzeWithAI()" id="analyzeBtn" disabled>
+                        🚀 AI 분석 시작
+                    </button>
+
+                    <div id="analysisResults"></div>
+
+                    <div class="stats-grid" id="analysisStats" style="display: none;">
+                        <div class="stat-card">
+                            <div class="stat-number" id="statServices">0</div>
+                            <div class="stat-label">서비스</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="statTeam">0</div>
+                            <div class="stat-label">팀원</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="statImages">0</div>
+                            <div class="stat-label">이미지</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="statConfidence">0%</div>
+                            <div class="stat-label">분석 신뢰도</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI 분석 결과 -->
+                <div class="section">
+                    <h3>🎯 AI 섹션 매핑</h3>
+                    <div id="aiSectionResults"></div>
+                </div>
+
+                <!-- 템플릿 적용 -->
+                <div class="section">
+                    <h3>✨ 템플릿 생성</h3>
+                    <button class="btn warning" onclick="generateWithAI()" id="generateBtn" disabled>
+                        🎨 AI 웹사이트 생성
+                    </button>
+
+                    <div class="progress-bar" id="generateProgress" style="display: none;">
+                        <div class="progress-fill" id="generateProgressFill"></div>
+                    </div>
+
+                    <div id="generateResults"></div>
+                </div>
+
+                <!-- AI 로그 -->
+                <div class="section">
+                    <h3>📋 AI 실행 로그</h3>
+                    <div class="log-area" id="aiLogArea">
+                        <div class="log-entry">[시스템] AI 시스템 초기화 중...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 템플릿 미리보기 -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <h3>🖥️ 실시간 미리보기</h3>
+                <div class="preview-controls">
+                    <button class="btn mini-btn" onclick="reloadPreview()">🔄</button>
+                    <button class="btn mini-btn" onclick="openInNewWindow()">🔗</button>
+                    <button class="btn mini-btn" onclick="downloadGenerated()">💾</button>
+                </div>
+            </div>
+
+            <iframe id="previewFrame" class="preview-frame" src="../templates/modified/eventre-business-test/index.html"></iframe>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/ollama-ai-engine.js"></script>
+    <script src="js/content-injector.js"></script>
+    <script>
+        // 전역 변수
+        let uploadedFiles = [];
+        let aiAnalysisResults = null;
+        let generatedHTML = null;
+        let isAIReady = false;
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', async () => {
+            initializeEventListeners();
+            await checkAIStatus();
+            logMessage('🤖 AI 시스템 초기화 완료');
+        });
+
+        function initializeEventListeners() {
+            const uploadZone = document.getElementById('uploadZone');
+            const fileInput = document.getElementById('fileInput');
+
+            uploadZone.addEventListener('click', () => fileInput.click());
+            uploadZone.addEventListener('dragover', handleDragOver);
+            uploadZone.addEventListener('dragleave', handleDragLeave);
+            uploadZone.addEventListener('drop', handleDrop);
+            fileInput.addEventListener('change', handleFileSelect);
+        }
+
+        // AI 상태 확인
+        async function checkAIStatus() {
+            setAIStatus('checking', '확인 중...');
+            logMessage('🔍 AI 시스템 상태 확인 중...');
+
+            try {
+                const status = await window.ollamaAI.getStatus();
+
+                if (status.connected) {
+                    setAIStatus('ready', '연결됨');
+                    document.getElementById('connectionStatus').textContent = '✅ 연결됨';
+                    document.getElementById('modelStatus').textContent = status.model;
+                    document.getElementById('modelInfo').textContent = '로컬 AI가 준비되었습니다. 파일을 업로드하고 분석을 시작하세요.';
+
+                    isAIReady = true;
+                    updateButtonStates();
+                    logMessage('✅ Ollama AI 연결 성공');
+                } else {
+                    setAIStatus('error', '연결 실패');
+                    document.getElementById('connectionStatus').textContent = '❌ 연결 실패';
+                    document.getElementById('modelStatus').textContent = '없음';
+                    document.getElementById('modelInfo').textContent = status.error || 'Ollama 서버를 시작하고 모델을 다운로드하세요.';
+                    document.getElementById('downloadBtn').disabled = false;
+
+                    logMessage('❌ Ollama AI 연결 실패: ' + (status.error || '알 수 없는 오류'));
+                }
+            } catch (error) {
+                setAIStatus('error', '오류');
+                logMessage('❌ AI 상태 확인 실패: ' + error.message);
+            }
+        }
+
+        // 모델 다운로드
+        async function downloadModel() {
+            setAIStatus('downloading', '다운로드 중...');
+            document.getElementById('downloadProgress').style.display = 'block';
+            document.getElementById('downloadBtn').disabled = true;
+
+            logMessage('📥 AI 모델 다운로드 시작...');
+
+            try {
+                const result = await window.ollamaAI.downloadModel();
+
+                if (result.success) {
+                    setAIStatus('ready', '준비됨');
+                    document.getElementById('downloadProgress').style.display = 'none';
+                    document.getElementById('modelInfo').textContent = '모델 다운로드가 완료되었습니다!';
+
+                    isAIReady = true;
+                    updateButtonStates();
+                    logMessage('✅ 모델 다운로드 완료');
+
+                    // 연결 상태 다시 확인
+                    setTimeout(() => checkAIStatus(), 2000);
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                setAIStatus('error', '다운로드 실패');
+                document.getElementById('downloadProgress').style.display = 'none';
+                document.getElementById('downloadBtn').disabled = false;
+                logMessage('❌ 모델 다운로드 실패: ' + error.message);
+            }
+        }
+
+        // 고급 샘플 로드
+        function loadAdvancedSample() {
+            const advancedSamples = [
+                createSampleFile('회사소개_상세.txt',
+                    '혁신솔루션기업 (Innovation Solutions Inc.)\n\n' +
+                    '우리는 2010년에 설립된 IT 솔루션 전문 기업으로, 디지털 트랜스포메이션을 통해 고객의 비즈니스 성공을 이끌고 있습니다.\n\n' +
+                    '비전: 최첨단 기술과 창의적 사고로 고객의 비즈니스 성공을 이끄는 글로벌 선도 기업\n\n' +
+                    '미션:\n' +
+                    '- 고객 중심의 맞춤형 솔루션 제공\n' +
+                    '- 지속적인 기술 혁신과 연구개발\n' +
+                    '- 사회적 책임을 다하는 기업 경영\n' +
+                    '- 직원 성장과 행복한 일터 조성'
+                ),
+
+                createSampleFile('핵심서비스_목록.txt',
+                    '혁신솔루션기업 핵심 서비스\n\n' +
+                    '1. 디지털 트랜스포메이션 컨설팅\n' +
+                    '   - 기업의 디지� 전환 전략 수립 및 실행\n' +
+                    '   - 업무 프로세스 혁신 및 자동화\n' +
+                    '   - 최적의 기술 솔루션 도입 지원\n' +
+                    '   - 변화 관리 및 직원 교육 프로그램\n\n' +
+                    '2. 클라우드 솔루션\n' +
+                    '   - AWS, Azure, GCP 기반 클라우드 아키텍처 설계\n' +
+                    '   - 기존 시스템의 클라우드 마이그레이션\n' +
+                    '   - 24/7 클라우드 운영 및 모니터링\n' +
+                    '   - 보안 및 백업 솔루션 제공\n\n' +
+                    '3. AI/ML 솔루션\n' +
+                    '   - 맞춤형 머신러닝 모델 개발 및 배포\n' +
+                    '   - 자연어 처리 및 이미지 인식 시스템\n' +
+                    '   - 예측 분석 및 비즈니스 인텔리전스\n' +
+                    '   - 챗봇 및 자동화 솔루션 구축\n\n' +
+                    '4. 사이버 보안 솔루션\n' +
+                    '   - 종합적인 보안 컨설팅 및 진단\n' +
+                    '   - 침입 탐지 및 대응 시스템 구축\n' +
+                    '   - 데이터 암호화 및 접근 제어\n' +
+                    '   - 보안 교육 및 인식 개선 프로그램'
+                ),
+
+                createSampleFile('팀구성원_상세.txt',
+                    '혁신솔루션기업 핵심 인재\n\n' +
+                    '김혁신 (대표이사 / CEO)\n' +
+                    '- 서울대학교 컴퓨터공학과 졸업\n' +
+                    '- 삼성전자 소프트웨어센터 15년 근무\n' +
+                    '- 클라우드 및 AI 분야 전문가\n' +
+                    '- 다수의 디지털 트랜스포메이션 프로젝트 성공 이끔\n\n' +
+                    '박기술 (최고기술책임자 / CTO)\n' +
+                    '- KAIST 전산학과 박사\n' +
+                    '- 구글 코리아 수석 엔지니어 출신\n' +
+                    '- 머신러닝 및 빅데이터 분야 10년 경력\n' +
+                    '- 국제 학술지 논문 20편 이상 발표\n\n' +
+                    '이보안 (보안담당 이사)\n' +
+                    '- 고려대학교 정보보호학과 졸업\n' +
+                    '- 국정원 사이버보안센터 8년 근무\n' +
+                    '- CISSP, CISA 등 국제 보안 자격증 보유\n' +
+                    '- 정부 및 대기업 보안 컨설팅 다수 수행\n\n' +
+                    '정클라우드 (클라우드 팀장)\n' +
+                    '- 연세대학교 전자공학과 졸업\n' +
+                    '- AWS 솔루션 아키텍트 프로페셔널\n' +
+                    '- Azure 및 GCP 전문가 인증 보유\n' +
+                    '- 대기업 클라우드 전환 프로젝트 50개 이상 성공\n\n' +
+                    '최컨설팅 (전략기획 팀장)\n' +
+                    '- 서강대학교 경영학과, MBA\n' +
+                    '- McKinsey & Company 컨설턴트 7년\n' +
+                    '- 디지털 트랜스포메이션 전략 수립 전문가\n' +
+                    '- 국내외 다양한 산업군의 혁신 프로젝트 경험'
+                ),
+
+                createSampleFile('연락처_정보.txt',
+                    '혁신솔루션기업 연락처\n\n' +
+                    '본사 주소: 서울특별시 강남구 테헤란로 123, 혁신타워 15층 (06234)\n' +
+                    '대표 전화: 02-1234-5678\n' +
+                    '팩스: 02-1234-5679\n' +
+                    '대표 이메일: contact@innovation-solutions.co.kr\n' +
+                    '기술 문의: tech@innovation-solutions.co.kr\n' +
+                    '영업 문의: sales@innovation-solutions.co.kr\n' +
+                    '채용 문의: careers@innovation-solutions.co.kr\n\n' +
+                    '웹사이트: https://www.innovation-solutions.co.kr\n' +
+                    '블로그: https://blog.innovation-solutions.co.kr\n' +
+                    'LinkedIn: https://linkedin.com/company/innovation-solutions\n\n' +
+                    '사업자등록번호: 123-45-67890\n' +
+                    '대표이사: 김혁신\n\n' +
+                    '운영시간:\n' +
+                    '- 평일: 09:00 ~ 18:00\n' +
+                    '- 토요일: 09:00 ~ 13:00 (격주)\n' +
+                    '- 일요일 및 공휴일: 휴무\n\n' +
+                    '고객지원센터: 1588-1234 (평일 09:00 ~ 18:00)'
+                )
+            ];
+
+            uploadedFiles = [...uploadedFiles, ...advancedSamples];
+            updateFilesList();
+            updateButtonStates();
+            logMessage('🏢 고급 비즈니스 샘플 데이터 로드 완료 (4개 파일)');
+        }
+
+        // AI 분석 실행
+        async function analyzeWithAI() {
+            if (!isAIReady) {
+                alert('AI 시스템이 준비되지 않았습니다.');
+                return;
+            }
+
+            if (uploadedFiles.length === 0) {
+                alert('먼저 파일을 업로드하세요.');
+                return;
+            }
+
+            setAnalysisStatus('analyzing', '분석 중...');
+            document.getElementById('analyzeBtn').disabled = true;
+            logMessage('🧠 AI 컨텐츠 분석 시작...');
+
+            try {
+                aiAnalysisResults = await window.ollamaAI.analyzeContentWithAI(uploadedFiles);
+
+                displayAIAnalysisResults(aiAnalysisResults);
+                setAnalysisStatus('completed', '분석 완료');
+                document.getElementById('generateBtn').disabled = false;
+
+                logMessage('✅ AI 분석 완료 - ' + (aiAnalysisResults.analysisLog?.length || 0) + '개 항목 처리됨');
+
+            } catch (error) {
+                setAnalysisStatus('error', '분석 실패');
+                logMessage('❌ AI 분석 실패: ' + error.message);
+                alert('AI 분석 중 오류가 발생했습니다: ' + error.message);
+            } finally {
+                document.getElementById('analyzeBtn').disabled = false;
+            }
+        }
+
+        // AI 분석 결과 표시
+        function displayAIAnalysisResults(results) {
+            // 통계 업데이트
+            document.getElementById('statServices').textContent = results.services?.length || 0;
+            document.getElementById('statTeam').textContent = results.team?.length || 0;
+            document.getElementById('statImages').textContent = Object.values(results.images || {}).flat().length;
+            document.getElementById('statConfidence').textContent = Math.round((results.hero?.confidence || 0) * 100) + '%';
+            document.getElementById('analysisStats').style.display = 'grid';
+
+            // 분석 결과 상세 표시
+            let resultHTML = `
+                <div class="ai-analysis-result">
+                    <strong>🏢 회사명:</strong> ${results.company?.name || '미감지'}<br>
+                    <strong>🎯 메인 메시지:</strong> ${results.hero?.title ? '✅ ' + results.hero.title : '❌ 미감지'}<br>
+                    <strong>📝 설명 텍스트:</strong> ${results.hero?.text ? '✅ 생성됨' : '❌ 없음'}<br>
+                    <strong>⚙️ 서비스:</strong> ${results.services?.length || 0}개 추출<br>
+                    <strong>👥 팀원:</strong> ${results.team?.length || 0}명 식별<br>
+                    <strong>📞 연락처:</strong> ${(results.contact?.phone || results.contact?.email) ? '✅ 추출됨' : '❌ 없음'}
+                </div>
+            `;
+
+            if (results.analysisLog?.length > 0) {
+                resultHTML += `
+                    <div style="margin-top: 10px; font-size: 0.8rem; color: #666;">
+                        <strong>분석 로그:</strong><br>
+                        ${results.analysisLog.map(log => `• ${log}`).join('<br>')}
+                    </div>
+                `;
+            }
+
+            document.getElementById('analysisResults').innerHTML = resultHTML;
+
+            // 섹션별 매핑 결과 표시
+            displayAISectionMapping(results);
+        }
+
+        function displayAISectionMapping(results) {
+            let mappingHTML = '';
+
+            // Hero 섹션
+            if (results.hero?.title) {
+                mappingHTML += `
+                    <div class="section-mapping">
+                        <strong>🏠 메인 섹션</strong>
+                        <span class="confidence-badge">${Math.round((results.hero.confidence || 0) * 100)}%</span><br>
+                        <div style="font-size: 0.8rem; margin-top: 4px;">
+                            제목: ${results.hero.title}<br>
+                            설명: ${results.hero.text?.substring(0, 100)}...
+                        </div>
+                    </div>
+                `;
+            }
+
+            // Services 섹션
+            if (results.services?.length > 0) {
+                mappingHTML += `
+                    <div class="section-mapping">
+                        <strong>⚙️ 서비스 섹션</strong>
+                        <span class="confidence-badge">${results.services.length}개</span><br>
+                        <div style="margin-top: 6px;">
+                `;
+
+                results.services.slice(0, 3).forEach(service => {
+                    mappingHTML += `
+                        <div class="service-preview">
+                            <h5>${service.title}</h5>
+                            <div>${service.description?.substring(0, 80)}...</div>
+                        </div>
+                    `;
+                });
+
+                mappingHTML += `</div></div>`;
+            }
+
+            // Team 섹션
+            if (results.team?.length > 0) {
+                mappingHTML += `
+                    <div class="section-mapping">
+                        <strong>👥 팀 섹션</strong>
+                        <span class="confidence-badge">${results.team.length}명</span><br>
+                        <div style="margin-top: 6px;">
+                `;
+
+                results.team.slice(0, 3).forEach(member => {
+                    mappingHTML += `
+                        <div class="team-preview">
+                            <h5>${member.name} - ${member.position}</h5>
+                            <div>${member.description?.substring(0, 60)}...</div>
+                        </div>
+                    `;
+                });
+
+                mappingHTML += `</div></div>`;
+            }
+
+            // Contact 섹션
+            if (results.contact?.phone || results.contact?.email || results.contact?.address) {
+                mappingHTML += `
+                    <div class="section-mapping">
+                        <strong>📞 연락처 섹션</strong><br>
+                        <div style="font-size: 0.8rem; margin-top: 4px;">
+                            ${results.contact.phone ? `전화: ${results.contact.phone}<br>` : ''}
+                            ${results.contact.email ? `이메일: ${results.contact.email}<br>` : ''}
+                            ${results.contact.address ? `주소: ${results.contact.address.substring(0, 50)}...` : ''}
+                        </div>
+                    </div>
+                `;
+            }
+
+            document.getElementById('aiSectionResults').innerHTML = mappingHTML || '<div style="color: #666;">매칭된 섹션이 없습니다.</div>';
+        }
+
+        // AI로 웹사이트 생성
+        async function generateWithAI() {
+            if (!aiAnalysisResults) {
+                alert('먼저 AI 분석을 수행하세요.');
+                return;
+            }
+
+            document.getElementById('generateBtn').disabled = true;
+            document.getElementById('generateProgress').style.display = 'block';
+            logMessage('🎨 AI 웹사이트 생성 시작...');
+
+            try {
+                updateGenerateProgress(20);
+
+                // 현재 템플릿 HTML 가져오기
+                const templateHTML = await fetchTemplateHTML();
+                updateGenerateProgress(40);
+
+                // AI 결과를 기반으로 컨텐츠 주입
+                const injectionResult = await window.contentInjector.injectContent(templateHTML, uploadedFiles);
+                updateGenerateProgress(70);
+
+                // AI 분석 결과를 추가로 적용
+                let finalHTML = injectionResult.html;
+                if (aiAnalysisResults.hero?.title) {
+                    finalHTML = applyAIResults(finalHTML, aiAnalysisResults);
+                }
+
+                updateGenerateProgress(90);
+
+                generatedHTML = finalHTML;
+                displayGeneratedWebsite(generatedHTML);
+                updateGenerateProgress(100);
+
+                document.getElementById('generateResults').innerHTML = `
+                    <div class="ai-analysis-result">
+                        <strong>✅ AI 웹사이트 생성 완료!</strong><br>
+                        회사명: ${aiAnalysisResults.company?.name || '미적용'}<br>
+                        서비스: ${aiAnalysisResults.services?.length || 0}개 적용<br>
+                        팀원: ${aiAnalysisResults.team?.length || 0}명 적용<br>
+                        분석 신뢰도: ${Math.round((aiAnalysisResults.hero?.confidence || 0) * 100)}%
+                    </div>
+                `;
+
+                logMessage('✅ AI 웹사이트 생성 완료!');
+
+            } catch (error) {
+                logMessage('❌ 웹사이트 생성 실패: ' + error.message);
+                alert('웹사이트 생성 중 오류가 발생했습니다: ' + error.message);
+            } finally {
+                document.getElementById('generateBtn').disabled = false;
+                setTimeout(() => {
+                    document.getElementById('generateProgress').style.display = 'none';
+                }, 1000);
+            }
+        }
+
+        // AI 결과를 HTML에 추가 적용
+        function applyAIResults(html, aiResults) {
+            // 회사명 전역 교체
+            if (aiResults.company?.name) {
+                html = html.replace(/Eventre|Business Solutions Conference/g, aiResults.company.name);
+            }
+
+            // Hero 섹션의 제목과 텍스트 교체
+            if (aiResults.hero?.title) {
+                html = html.replace(
+                    /<h1[^>]*class="[^"]*banner-title[^"]*"[^>]*>[\s\S]*?<\/h1>/gi,
+                    `<h1 class="banner-title">${aiResults.hero.title}</h1>`
+                );
+            }
+
+            if (aiResults.hero?.text) {
+                html = html.replace(
+                    /<p[^>]*class="[^"]*banner-text[^"]*"[^>]*>[\s\S]*?<\/p>/gi,
+                    `<p class="banner-text">${aiResults.hero.text}</p>`
+                );
+            }
+
+            // 서비스 섹션 동적 생성
+            if (aiResults.services?.length > 0) {
+                const servicesHTML = aiResults.services.slice(0, 6).map(service => `
+                    <div class="col-lg-4 col-md-6">
+                        <div class="feature-item text-center">
+                            <i class="fa fa-cogs"></i>
+                            <h4>${service.title}</h4>
+                            <p>${service.description}</p>
+                            ${service.features ? `<ul style="font-size: 0.9em; color: #666;">${service.features.slice(0, 3).map(f => `<li>${f}</li>`).join('')}</ul>` : ''}
+                        </div>
+                    </div>
+                `).join('');
+
+                // 기존 서비스 섹션 교체
+                html = html.replace(
+                    /(<div[^>]*class="[^"]*row[^"]*"[^>]*>)([\s\S]*?)(<\/div>)/gi,
+                    (match, openTag, content, closeTag) => {
+                        if (match.includes('feature-item') || match.includes('service')) {
+                            return openTag + servicesHTML + closeTag;
+                        }
+                        return match;
+                    }
+                );
+            }
+
+            return html;
+        }
+
+        // 유틸리티 함수들
+        function setAIStatus(type, text) {
+            const statusEl = document.getElementById('aiStatus');
+            statusEl.className = `status-indicator status-${type}`;
+            statusEl.textContent = text;
+
+            if (type === 'checking') statusEl.classList.add('pulse');
+            else statusEl.classList.remove('pulse');
+        }
+
+        function setAnalysisStatus(type, text) {
+            const statusEl = document.getElementById('analysisStatus');
+            statusEl.className = `status-indicator status-${type}`;
+            statusEl.textContent = text;
+
+            if (type === 'analyzing') statusEl.classList.add('spinning');
+            else statusEl.classList.remove('spinning');
+        }
+
+        function updateButtonStates() {
+            document.getElementById('analyzeBtn').disabled = !(isAIReady && uploadedFiles.length > 0);
+            document.getElementById('generateBtn').disabled = !aiAnalysisResults;
+        }
+
+        function updateGenerateProgress(percent) {
+            document.getElementById('generateProgressFill').style.width = `${percent}%`;
+        }
+
+        async function fetchTemplateHTML() {
+            const response = await fetch('../templates/modified/eventre-business-test/index.html');
+            if (!response.ok) throw new Error('템플릿을 불러올 수 없습니다.');
+            return await response.text();
+        }
+
+        function displayGeneratedWebsite(html) {
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            document.getElementById('previewFrame').src = url;
+            setTimeout(() => URL.revokeObjectURL(url), 5000);
+        }
+
+        function logMessage(message) {
+            const logArea = document.getElementById('aiLogArea');
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            logEntry.textContent = `[${timestamp}] ${message}`;
+            logArea.appendChild(logEntry);
+            logArea.scrollTop = logArea.scrollHeight;
+        }
+
+        // 파일 처리 함수들 (기존과 동일)
+        function handleDragOver(e) {
+            e.preventDefault();
+            document.getElementById('uploadZone').classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            document.getElementById('uploadZone').classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            document.getElementById('uploadZone').classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files);
+            processFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            processFiles(files);
+        }
+
+        async function processFiles(files) {
+            for (const file of files) {
+                try {
+                    const processedFile = await processFile(file);
+                    uploadedFiles.push(processedFile);
+                } catch (error) {
+                    logMessage(`❌ ${file.name} 처리 실패: ${error.message}`);
+                }
+            }
+            updateFilesList();
+            updateButtonStates();
+            logMessage(`📁 ${files.length}개 파일 처리 완료`);
+        }
+
+        async function processFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                const result = {
+                    id: Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    name: file.name,
+                    size: file.size,
+                    type: detectFileType(file.name),
+                    content: null
+                };
+
+                if (file.type.startsWith('text/')) {
+                    reader.onload = (e) => {
+                        result.content = { type: 'text', text: e.target.result };
+                        resolve(result);
+                    };
+                    reader.readAsText(file);
+                } else if (file.type.startsWith('image/')) {
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            result.content = {
+                                type: 'image',
+                                dataUrl: e.target.result,
+                                dimensions: { width: img.width, height: img.height },
+                                aspectRatio: img.width / img.height
+                            };
+                            resolve(result);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    result.content = { type: 'document', text: `[${file.name}]` };
+                    resolve(result);
+                }
+
+                reader.onerror = () => reject(new Error('파일 읽기 실패'));
+            });
+        }
+
+        function createSampleFile(name, content) {
+            return {
+                id: 'sample_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                name: name,
+                size: content.length,
+                type: 'document',
+                content: { type: 'text', text: content }
+            };
+        }
+
+        function detectFileType(fileName) {
+            const ext = fileName.toLowerCase().split('.').pop();
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'image';
+            if (['mp4', 'webm', 'ogg', 'avi', 'mov'].includes(ext)) return 'video';
+            if (['txt', 'pdf', 'doc', 'docx'].includes(ext)) return 'document';
+            return 'unknown';
+        }
+
+        function updateFilesList() {
+            document.getElementById('fileCount').textContent = uploadedFiles.length;
+            document.getElementById('uploadedFilesList').innerHTML = uploadedFiles.map(file => `
+                <div class="file-item">
+                    ${getFileIcon(file.type)} ${file.name} (${formatFileSize(file.size)})
+                </div>
+            `).join('');
+        }
+
+        function getFileIcon(type) {
+            const icons = { document: '📄', image: '🖼️', video: '🎥', unknown: '📎' };
+            return icons[type] || icons.unknown;
+        }
+
+        function formatFileSize(bytes) {
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            if (bytes === 0) return '0 Bytes';
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function clearAll() {
+            uploadedFiles = [];
+            aiAnalysisResults = null;
+            generatedHTML = null;
+            updateFilesList();
+            updateButtonStates();
+            document.getElementById('analysisResults').innerHTML = '';
+            document.getElementById('analysisStats').style.display = 'none';
+            document.getElementById('aiSectionResults').innerHTML = '';
+            document.getElementById('generateResults').innerHTML = '';
+            setAnalysisStatus('ready', '대기 중');
+            logMessage('🗑️ 모든 데이터가 초기화되었습니다.');
+        }
+
+        function reloadPreview() {
+            const frame = document.getElementById('previewFrame');
+            const currentSrc = frame.src;
+            frame.src = '';
+            setTimeout(() => frame.src = currentSrc, 100);
+        }
+
+        function openInNewWindow() {
+            if (generatedHTML) {
+                const newWindow = window.open();
+                newWindow.document.write(generatedHTML);
+                newWindow.document.close();
+            } else {
+                window.open('../templates/modified/eventre-business-test/index.html', '_blank');
+            }
+        }
+
+        function downloadGenerated() {
+            if (!generatedHTML) {
+                alert('먼저 웹사이트를 생성하세요.');
+                return;
+            }
+
+            const blob = new Blob([generatedHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'ai-generated-website.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            logMessage('💾 AI 생성 웹사이트 다운로드 완료');
+        }
+    </script>
+</body>
+</html>

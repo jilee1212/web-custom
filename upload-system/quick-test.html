@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>업로드 시스템 간단 테스트</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .test-container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .upload-area {
+            border: 2px dashed #ccc;
+            padding: 40px;
+            text-align: center;
+            border-radius: 8px;
+            margin: 20px 0;
+            cursor: pointer;
+            transition: border-color 0.3s;
+        }
+        .upload-area:hover {
+            border-color: #007bff;
+            background: #f8f9ff;
+        }
+        .upload-area.dragover {
+            border-color: #007bff;
+            background: #f0f7ff;
+        }
+        #fileList {
+            margin-top: 20px;
+        }
+        .file-item {
+            background: #f8f9fa;
+            padding: 10px;
+            margin: 5px 0;
+            border-radius: 5px;
+            border-left: 4px solid #28a745;
+        }
+        .file-item.error {
+            border-left-color: #dc3545;
+            background: #fff5f5;
+        }
+        .btn {
+            background: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+        }
+        .btn:hover {
+            background: #0056b3;
+        }
+        .results {
+            margin-top: 20px;
+            padding: 20px;
+            background: #e7f3ff;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="test-container">
+        <h1>🔧 파일 업로드 시스템 간단 테스트</h1>
+
+        <div class="upload-area" id="uploadArea">
+            <h3>여기에 파일을 드래그하거나 클릭하세요</h3>
+            <p>지원 형식: TXT, 이미지 (JPG, PNG), PDF, DOC</p>
+            <input type="file" id="fileInput" multiple style="display: none;"
+                   accept=".txt,.jpg,.jpeg,.png,.gif,.pdf,.doc,.docx">
+        </div>
+
+        <button class="btn" onclick="clearAll()">전체 초기화</button>
+        <button class="btn" onclick="analyzeFiles()">컨텐츠 분석</button>
+
+        <div id="fileList"></div>
+        <div id="results" class="results" style="display: none;"></div>
+    </div>
+
+    <script>
+        let uploadedFiles = [];
+
+        // DOM 요소들
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList');
+        const results = document.getElementById('results');
+
+        // 드래그 앤 드롭 설정
+        uploadArea.addEventListener('click', () => fileInput.click());
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('drop', handleDrop);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        fileInput.addEventListener('change', handleFileSelect);
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files);
+            processFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            processFiles(files);
+        }
+
+        async function processFiles(files) {
+            console.log('Processing files:', files);
+
+            for (const file of files) {
+                try {
+                    const result = await processFile(file);
+                    uploadedFiles.push(result);
+                    displayFile(result);
+                } catch (error) {
+                    console.error('Error processing file:', error);
+                    displayFile({
+                        name: file.name,
+                        error: error.message,
+                        success: false
+                    });
+                }
+            }
+        }
+
+        async function processFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                const result = {
+                    id: Date.now() + '_' + Math.random().toString(36).substr(2, 9),
+                    name: file.name,
+                    size: file.size,
+                    type: getFileType(file.name),
+                    success: true,
+                    content: null
+                };
+
+                if (file.type.startsWith('text/')) {
+                    reader.onload = (e) => {
+                        result.content = {
+                            type: 'text',
+                            text: e.target.result,
+                            wordCount: e.target.result.split(/\s+/).length
+                        };
+                        resolve(result);
+                    };
+                    reader.readAsText(file);
+                } else if (file.type.startsWith('image/')) {
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            result.content = {
+                                type: 'image',
+                                dataUrl: e.target.result,
+                                width: img.width,
+                                height: img.height
+                            };
+                            resolve(result);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    // 다른 파일 형식은 기본 정보만 저장
+                    result.content = {
+                        type: 'document',
+                        text: `[${file.type || 'Unknown'} 파일]`
+                    };
+                    resolve(result);
+                }
+
+                reader.onerror = () => reject(new Error('파일 읽기 실패'));
+            });
+        }
+
+        function getFileType(fileName) {
+            const ext = fileName.toLowerCase().split('.').pop();
+            if (['jpg', 'jpeg', 'png', 'gif'].includes(ext)) return 'image';
+            if (['txt', 'pdf', 'doc', 'docx'].includes(ext)) return 'document';
+            return 'unknown';
+        }
+
+        function displayFile(file) {
+            const div = document.createElement('div');
+            div.className = `file-item ${file.success ? '' : 'error'}`;
+
+            const statusText = file.success ?
+                `✅ ${file.name} (${formatFileSize(file.size)})` :
+                `❌ ${file.name} - ${file.error}`;
+
+            div.innerHTML = statusText;
+            fileList.appendChild(div);
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        function analyzeFiles() {
+            if (uploadedFiles.length === 0) {
+                alert('먼저 파일을 업로드하세요.');
+                return;
+            }
+
+            const analysis = {
+                totalFiles: uploadedFiles.length,
+                textFiles: uploadedFiles.filter(f => f.type === 'document').length,
+                imageFiles: uploadedFiles.filter(f => f.type === 'image').length,
+                sections: {}
+            };
+
+            // 간단한 섹션 매칭
+            uploadedFiles.forEach(file => {
+                const fileName = file.name.toLowerCase();
+                let section = 'general';
+
+                if (fileName.includes('회사') || fileName.includes('소개') || fileName.includes('company')) {
+                    section = 'hero';
+                } else if (fileName.includes('서비스') || fileName.includes('service')) {
+                    section = 'services';
+                } else if (fileName.includes('팀') || fileName.includes('team')) {
+                    section = 'team';
+                } else if (fileName.includes('연락') || fileName.includes('contact')) {
+                    section = 'contact';
+                }
+
+                if (!analysis.sections[section]) {
+                    analysis.sections[section] = [];
+                }
+                analysis.sections[section].push(file.name);
+            });
+
+            displayResults(analysis);
+        }
+
+        function displayResults(analysis) {
+            results.style.display = 'block';
+            results.innerHTML = `
+                <h3>📊 분석 결과</h3>
+                <p><strong>총 파일:</strong> ${analysis.totalFiles}개</p>
+                <p><strong>텍스트/문서:</strong> ${analysis.textFiles}개</p>
+                <p><strong>이미지:</strong> ${analysis.imageFiles}개</p>
+
+                <h4>섹션별 매칭:</h4>
+                ${Object.entries(analysis.sections).map(([section, files]) =>
+                    `<div><strong>${getSectionName(section)}:</strong> ${files.join(', ')}</div>`
+                ).join('')}
+
+                <div style="margin-top: 20px; padding: 10px; background: #d4edda; border-radius: 5px;">
+                    <strong>✅ 다중 파일 업로드 테스트 성공!</strong>
+                </div>
+            `;
+        }
+
+        function getSectionName(section) {
+            const names = {
+                'hero': '메인 섹션',
+                'services': '서비스',
+                'team': '팀 소개',
+                'contact': '연락처',
+                'general': '일반'
+            };
+            return names[section] || section;
+        }
+
+        function clearAll() {
+            uploadedFiles = [];
+            fileList.innerHTML = '';
+            results.style.display = 'none';
+            fileInput.value = '';
+            console.log('모든 데이터가 초기화되었습니다.');
+        }
+    </script>
+</body>
+</html>

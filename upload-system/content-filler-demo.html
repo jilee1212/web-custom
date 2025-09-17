@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>실제 컨텐츠 자동 적용 데모</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            line-height: 1.6;
+        }
+
+        .main-container {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            height: 100vh;
+            gap: 0;
+        }
+
+        .control-panel {
+            background: white;
+            overflow-y: auto;
+            border-right: 1px solid #ddd;
+        }
+
+        .panel-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .panel-content {
+            padding: 20px;
+        }
+
+        .section {
+            margin-bottom: 25px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .section h3 {
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .upload-zone {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .upload-icon {
+            font-size: 2.5rem;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin: 3px;
+            transition: background 0.3s ease;
+            width: 100%;
+        }
+
+        .btn:hover { background: #5a67d8; }
+        .btn.success { background: #48bb78; }
+        .btn.warning { background: #ed8936; }
+        .btn.danger { background: #f56565; }
+
+        .file-item {
+            background: #f8f9ff;
+            border-left: 4px solid #667eea;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .analysis-result {
+            background: #e6fffa;
+            border-left: 4px solid #38b2ac;
+            padding: 10px;
+            margin: 8px 0;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .section-mapping {
+            background: #fef5e7;
+            border-left: 4px solid #ed8936;
+            padding: 8px;
+            margin: 5px 0;
+            border-radius: 4px;
+            font-size: 0.85rem;
+        }
+
+        .preview-panel {
+            background: white;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .preview-header {
+            background: #f8f9fa;
+            padding: 10px 20px;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .status-indicator {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-ready { background: #c6f6d5; color: #22543d; }
+        .status-processing { background: #feebc8; color: #744210; }
+        .status-completed { background: #bee3f8; color: #2c5282; }
+
+        .preview-frame {
+            flex: 1;
+            border: none;
+            width: 100%;
+        }
+
+        .progress-bar {
+            background: #edf2f7;
+            height: 4px;
+            width: 100%;
+            border-radius: 2px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .mini-btn {
+            padding: 4px 8px;
+            font-size: 0.75rem;
+            margin: 0 2px;
+        }
+
+        .log-area {
+            background: #2d3748;
+            color: #e2e8f0;
+            padding: 10px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.8rem;
+            max-height: 120px;
+            overflow-y: auto;
+            border-radius: 4px;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .stat-card {
+            background: #f7fafc;
+            padding: 8px;
+            border-radius: 4px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: #666;
+        }
+
+        #fileInput { display: none; }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 제어 패널 -->
+        <div class="control-panel">
+            <div class="panel-header">
+                <h2>🤖 AI 없는 자동 컨텐츠 적용</h2>
+                <p>키워드 + 패턴 매칭으로 똑똑하게!</p>
+            </div>
+
+            <div class="panel-content">
+                <!-- 파일 업로드 섹션 -->
+                <div class="section">
+                    <h3>📁 파일 업로드</h3>
+                    <div class="upload-zone" id="uploadZone">
+                        <div class="upload-icon">☁️</div>
+                        <div><strong>파일을 드래그하거나 클릭</strong></div>
+                        <div style="font-size: 0.8rem; color: #666; margin-top: 5px;">
+                            TXT, PDF, DOC, 이미지, 비디오
+                        </div>
+                        <input type="file" id="fileInput" multiple accept=".txt,.pdf,.doc,.docx,.jpg,.jpeg,.png,.gif,.mp4,.webm">
+                    </div>
+
+                    <div style="margin-top: 10px;">
+                        <button class="btn success" onclick="loadBusinessSample()">📊 비즈니스 샘플 로드</button>
+                        <button class="btn" onclick="clearAllFiles()">🗑️ 전체 초기화</button>
+                    </div>
+                </div>
+
+                <!-- 업로드된 파일 목록 -->
+                <div class="section">
+                    <h3>📄 업로드된 파일 (<span id="fileCount">0</span>)</h3>
+                    <div id="uploadedFilesList"></div>
+                </div>
+
+                <!-- 컨텐츠 분석 -->
+                <div class="section">
+                    <h3>🔍 컨텐츠 분석</h3>
+                    <button class="btn" onclick="analyzeContent()">분석 실행</button>
+                    <div id="analysisResults"></div>
+
+                    <div class="stats-grid" id="analysisStats" style="display: none;">
+                        <div class="stat-card">
+                            <div class="stat-number" id="statServices">0</div>
+                            <div class="stat-label">서비스</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="statTeam">0</div>
+                            <div class="stat-label">팀원</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="statImages">0</div>
+                            <div class="stat-label">이미지</div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-number" id="statSections">0</div>
+                            <div class="stat-label">적용 섹션</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 섹션 매핑 결과 -->
+                <div class="section">
+                    <h3>🎯 섹션 매핑</h3>
+                    <div id="sectionMappingResults"></div>
+                </div>
+
+                <!-- 템플릿 적용 -->
+                <div class="section">
+                    <h3>🚀 템플릿 적용</h3>
+                    <button class="btn warning" onclick="applyToTemplate()">실제 컨텐츠 적용</button>
+                    <div style="margin-top: 10px;">
+                        <div class="progress-bar" id="progressBar" style="display: none;">
+                            <div class="progress-fill" id="progressFill"></div>
+                        </div>
+                        <div id="applyResults"></div>
+                    </div>
+                </div>
+
+                <!-- 실행 로그 -->
+                <div class="section">
+                    <h3>📋 실행 로그</h3>
+                    <div class="log-area" id="logArea">시스템 준비 완료...\n</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 미리보기 패널 -->
+        <div class="preview-panel">
+            <div class="preview-header">
+                <div>
+                    <strong>템플릿 미리보기</strong>
+                    <span class="status-indicator status-ready" id="templateStatus">준비됨</span>
+                </div>
+                <div>
+                    <button class="btn mini-btn" onclick="reloadPreview()">🔄</button>
+                    <button class="btn mini-btn" onclick="openInNewWindow()">🔗</button>
+                    <button class="btn mini-btn" onclick="downloadModified()">💾</button>
+                </div>
+            </div>
+
+            <iframe id="previewFrame" class="preview-frame" src="../templates/modified/eventre-business-test/index.html"></iframe>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="js/content-injector.js"></script>
+    <script>
+        // 전역 변수
+        let uploadedFiles = [];
+        let analysisResults = null;
+        let modifiedHTML = null;
+
+        // DOM 요소들
+        const elements = {
+            uploadZone: document.getElementById('uploadZone'),
+            fileInput: document.getElementById('fileInput'),
+            fileCount: document.getElementById('fileCount'),
+            uploadedFilesList: document.getElementById('uploadedFilesList'),
+            analysisResults: document.getElementById('analysisResults'),
+            analysisStats: document.getElementById('analysisStats'),
+            sectionMappingResults: document.getElementById('sectionMappingResults'),
+            applyResults: document.getElementById('applyResults'),
+            logArea: document.getElementById('logArea'),
+            templateStatus: document.getElementById('templateStatus'),
+            previewFrame: document.getElementById('previewFrame'),
+            progressBar: document.getElementById('progressBar'),
+            progressFill: document.getElementById('progressFill')
+        };
+
+        // 이벤트 리스너 설정
+        function initializeEventListeners() {
+            elements.uploadZone.addEventListener('click', () => elements.fileInput.click());
+            elements.uploadZone.addEventListener('dragover', handleDragOver);
+            elements.uploadZone.addEventListener('dragleave', handleDragLeave);
+            elements.uploadZone.addEventListener('drop', handleDrop);
+            elements.fileInput.addEventListener('change', handleFileSelect);
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            elements.uploadZone.classList.add('dragover');
+        }
+
+        function handleDragLeave(e) {
+            e.preventDefault();
+            elements.uploadZone.classList.remove('dragover');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            elements.uploadZone.classList.remove('dragover');
+            const files = Array.from(e.dataTransfer.files);
+            processUploadedFiles(files);
+        }
+
+        function handleFileSelect(e) {
+            const files = Array.from(e.target.files);
+            processUploadedFiles(files);
+        }
+
+        // 샘플 비즈니스 데이터 로드
+        function loadBusinessSample() {
+            logMessage('📊 비즈니스 샘플 데이터 로딩...');
+
+            const sampleFiles = [
+                createSampleFile('회사소개.txt', '혁신솔루션기업 (Innovation Solutions Inc.)\n\n비전\n우리는 최첨단 기술과 창의적 사고로 고객의 비즈니스 성공을 이끄는 글로벌 선도 기업이 되고자 합니다.\n\n미션\n- 고객 중심의 맞춤형 솔루션 제공\n- 지속적인 기술 혁신과 연구개발\n- 사회적 책임을 다하는 기업 경영'),
+
+                createSampleFile('서비스안내.txt', '핵심 서비스\n\n1. 디지털 트랜스포메이션 컨설팅\n   - 기업의 디지털 전환을 위한 전략 수립\n   - 최적의 기술 솔루션 도입 지원\n   - 변화 관리 및 직원 교육\n\n2. 클라우드 솔루션\n   - AWS, Azure, GCP 기반 클라우드 아키텍처 설계\n   - 클라우드 마이그레이션 서비스\n   - 24/7 운영 및 모니터링 서비스\n\n3. AI/ML 솔루션\n   - 머신러닝 모델 개발 및 배포\n   - 자연어 처리 및 이미지 인식 시스템\n   - 예측 분석 및 비즈니스 인텔리전스'),
+
+                createSampleFile('팀소개.txt', '팀 소개\n\n김혁신 (대표이사)\n- 서울대학교 컴퓨터공학과 졸업\n- 삼성전자 소프트웨어센터 15년 근무\n- 클라우드 및 AI 분야 전문가\n\n박기술 (CTO)\n- KAIST 전산학과 박사\n- 구글 코리아 수석 엔지니어 출신\n- 머신러닝 및 빅데이터 전문가\n\n이보안 (보안팀장)\n- 고려대학교 정보보호학과 졸업\n- 국정원 사이버보안센터 근무\n- CISSP, CISA 자격증 보유'),
+
+                createSampleFile('연락처.txt', '연락처 정보\n\n주소: 서울특별시 강남구 테헤란로 123, 혁신타워 15층\n전화: 02-1234-5678\n팩스: 02-1234-5679\n이메일: contact@innovation-solutions.co.kr\n웹사이트: www.innovation-solutions.co.kr\n\n사업자등록번호: 123-45-67890\n대표이사: 김혁신')
+            ];
+
+            uploadedFiles = [...uploadedFiles, ...sampleFiles];
+            updateFilesList();
+            logMessage('✅ 샘플 데이터 로드 완료 (4개 파일)');
+            updateStatus('ready', '샘플 로드됨');
+        }
+
+        function createSampleFile(name, content) {
+            return {
+                id: 'sample_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                name: name,
+                size: content.length,
+                type: 'document',
+                content: {
+                    type: 'text',
+                    text: content
+                }
+            };
+        }
+
+        // 파일 처리
+        async function processUploadedFiles(files) {
+            logMessage(`📁 파일 처리 시작 (${files.length}개)`);
+
+            for (const file of files) {
+                try {
+                    const processedFile = await processIndividualFile(file);
+                    uploadedFiles.push(processedFile);
+                    logMessage(`✅ ${file.name} 처리 완료`);
+                } catch (error) {
+                    logMessage(`❌ ${file.name} 처리 실패: ${error.message}`);
+                }
+            }
+
+            updateFilesList();
+            logMessage('📁 모든 파일 처리 완료');
+        }
+
+        async function processIndividualFile(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                const result = {
+                    id: Date.now() + '_' + Math.random().toString(36).substr(2, 5),
+                    name: file.name,
+                    size: file.size,
+                    type: detectFileType(file.name),
+                    content: null
+                };
+
+                if (file.type.startsWith('text/')) {
+                    reader.onload = (e) => {
+                        result.content = {
+                            type: 'text',
+                            text: e.target.result
+                        };
+                        resolve(result);
+                    };
+                    reader.readAsText(file);
+                } else if (file.type.startsWith('image/')) {
+                    reader.onload = (e) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            result.content = {
+                                type: 'image',
+                                dataUrl: e.target.result,
+                                dimensions: { width: img.width, height: img.height },
+                                aspectRatio: img.width / img.height
+                            };
+                            resolve(result);
+                        };
+                        img.src = e.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                } else if (file.type.startsWith('video/')) {
+                    reader.onload = (e) => {
+                        result.content = {
+                            type: 'video',
+                            dataUrl: e.target.result
+                        };
+                        resolve(result);
+                    };
+                    reader.readAsDataURL(file);
+                } else {
+                    result.content = { type: 'document', text: `[${file.name}]` };
+                    resolve(result);
+                }
+
+                reader.onerror = () => reject(new Error('파일 읽기 실패'));
+            });
+        }
+
+        function detectFileType(fileName) {
+            const ext = fileName.toLowerCase().split('.').pop();
+            if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return 'image';
+            if (['mp4', 'webm', 'ogg', 'avi', 'mov'].includes(ext)) return 'video';
+            if (['txt', 'pdf', 'doc', 'docx'].includes(ext)) return 'document';
+            return 'unknown';
+        }
+
+        // 컨텐츠 분석
+        async function analyzeContent() {
+            if (uploadedFiles.length === 0) {
+                alert('먼저 파일을 업로드하세요.');
+                return;
+            }
+
+            logMessage('🔍 컨텐츠 분석 시작...');
+            updateStatus('processing', '분석중...');
+
+            try {
+                // ContentInjector의 analyzeAndStructureContent 메서드 사용
+                analysisResults = window.contentInjector.analyzeAndStructureContent(uploadedFiles);
+
+                displayAnalysisResults(analysisResults);
+                updateStatus('ready', '분석 완료');
+                logMessage('✅ 컨텐츠 분석 완료');
+            } catch (error) {
+                logMessage(`❌ 분석 실패: ${error.message}`);
+                updateStatus('ready', '분석 실패');
+            }
+        }
+
+        function displayAnalysisResults(results) {
+            // 통계 업데이트
+            document.getElementById('statServices').textContent = results.services.length;
+            document.getElementById('statTeam').textContent = results.team.length;
+            document.getElementById('statImages').textContent = Object.values(results.images).flat().length;
+            document.getElementById('statSections').textContent = Object.keys(results).filter(key =>
+                ['hero', 'services', 'team', 'contact'].includes(key) &&
+                (Array.isArray(results[key]) ? results[key].length > 0 : Object.keys(results[key]).length > 0)
+            ).length;
+
+            elements.analysisStats.style.display = 'grid';
+
+            // 분석 결과 표시
+            elements.analysisResults.innerHTML = `
+                <div class="analysis-result">
+                    <strong>회사명:</strong> ${results.company.name || '미감지'}<br>
+                    <strong>Hero 텍스트:</strong> ${results.hero.title ? '✅' : '❌'}<br>
+                    <strong>서비스 목록:</strong> ${results.services.length}개<br>
+                    <strong>팀원 정보:</strong> ${results.team.length}명<br>
+                    <strong>연락처:</strong> ${results.contact.phone || results.contact.email ? '✅' : '❌'}
+                </div>
+            `;
+
+            // 섹션 매핑 결과 표시
+            const sections = {
+                'hero': results.hero,
+                'services': results.services,
+                'team': results.team,
+                'contact': results.contact
+            };
+
+            let mappingHTML = '';
+            for (const [sectionName, data] of Object.entries(sections)) {
+                let hasContent = false;
+                let contentDesc = '';
+
+                if (sectionName === 'hero') {
+                    hasContent = data.title || data.text;
+                    contentDesc = hasContent ? '메인 텍스트 감지됨' : '내용 없음';
+                } else if (sectionName === 'services') {
+                    hasContent = data.length > 0;
+                    contentDesc = hasContent ? `${data.length}개 서비스` : '내용 없음';
+                } else if (sectionName === 'team') {
+                    hasContent = data.length > 0;
+                    contentDesc = hasContent ? `${data.length}명` : '내용 없음';
+                } else if (sectionName === 'contact') {
+                    hasContent = data.phone || data.email || data.address;
+                    contentDesc = hasContent ? '연락처 정보 감지됨' : '내용 없음';
+                }
+
+                mappingHTML += `
+                    <div class="section-mapping">
+                        <strong>${getSectionDisplayName(sectionName)}</strong><br>
+                        ${hasContent ? '✅' : '❌'} ${contentDesc}
+                    </div>
+                `;
+            }
+
+            elements.sectionMappingResults.innerHTML = mappingHTML;
+        }
+
+        // 템플릿에 실제 적용
+        async function applyToTemplate() {
+            if (!analysisResults) {
+                alert('먼저 컨텐츠 분석을 수행하세요.');
+                return;
+            }
+
+            logMessage('🚀 템플릿에 컨텐츠 적용 시작...');
+            updateStatus('processing', '적용중...');
+            showProgress();
+
+            try {
+                // 현재 템플릿 HTML 가져오기
+                const templateHTML = await fetchTemplateHTML();
+                updateProgress(30);
+
+                // 컨텐츠 주입
+                const injectionResult = await window.contentInjector.injectContent(templateHTML, uploadedFiles);
+                updateProgress(70);
+
+                if (injectionResult.success) {
+                    modifiedHTML = injectionResult.html;
+
+                    // 수정된 HTML을 새 창에서 미리보기
+                    displayModifiedTemplate(modifiedHTML);
+                    updateProgress(100);
+
+                    // 결과 표시
+                    elements.applyResults.innerHTML = `
+                        <div class="analysis-result">
+                            <strong>✅ 적용 완료!</strong><br>
+                            적용된 섹션: ${injectionResult.appliedContent.summary?.sectionsApplied?.join(', ') || '없음'}<br>
+                            회사명: ${injectionResult.appliedContent.company.name || '미적용'}<br>
+                            서비스: ${injectionResult.appliedContent.services.length}개<br>
+                            팀원: ${injectionResult.appliedContent.team.length}명
+                        </div>
+                    `;
+
+                    updateStatus('completed', '적용 완료');
+                    logMessage('✅ 템플릿 적용 완료!');
+                } else {
+                    throw new Error(injectionResult.error);
+                }
+
+            } catch (error) {
+                logMessage(`❌ 템플릿 적용 실패: ${error.message}`);
+                updateStatus('ready', '적용 실패');
+                elements.applyResults.innerHTML = `
+                    <div class="analysis-result" style="background: #fed7d7; border-color: #fc8181;">
+                        <strong>❌ 적용 실패</strong><br>
+                        ${error.message}
+                    </div>
+                `;
+            } finally {
+                hideProgress();
+            }
+        }
+
+        async function fetchTemplateHTML() {
+            const response = await fetch('../templates/modified/eventre-business-test/index.html');
+            if (!response.ok) {
+                throw new Error('템플릿을 불러올 수 없습니다.');
+            }
+            return await response.text();
+        }
+
+        function displayModifiedTemplate(html) {
+            // Blob을 생성하고 URL 생성
+            const blob = new Blob([html], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+
+            // iframe에 표시
+            elements.previewFrame.src = url;
+
+            // 메모리 정리 (5초 후)
+            setTimeout(() => {
+                URL.revokeObjectURL(url);
+            }, 5000);
+        }
+
+        // UI 유틸리티 함수들
+        function updateFilesList() {
+            elements.fileCount.textContent = uploadedFiles.length;
+            elements.uploadedFilesList.innerHTML = uploadedFiles.map(file => `
+                <div class="file-item">
+                    ${getFileIcon(file.type)} ${file.name} (${formatFileSize(file.size)})
+                </div>
+            `).join('');
+        }
+
+        function updateStatus(type, text) {
+            elements.templateStatus.className = `status-indicator status-${type}`;
+            elements.templateStatus.textContent = text;
+        }
+
+        function showProgress() {
+            elements.progressBar.style.display = 'block';
+            updateProgress(0);
+        }
+
+        function updateProgress(percent) {
+            elements.progressFill.style.width = `${percent}%`;
+        }
+
+        function hideProgress() {
+            setTimeout(() => {
+                elements.progressBar.style.display = 'none';
+            }, 1000);
+        }
+
+        function logMessage(message) {
+            const timestamp = new Date().toLocaleTimeString();
+            elements.logArea.innerHTML += `[${timestamp}] ${message}\n`;
+            elements.logArea.scrollTop = elements.logArea.scrollHeight;
+        }
+
+        function clearAllFiles() {
+            uploadedFiles = [];
+            analysisResults = null;
+            modifiedHTML = null;
+            updateFilesList();
+            elements.analysisResults.innerHTML = '';
+            elements.analysisStats.style.display = 'none';
+            elements.sectionMappingResults.innerHTML = '';
+            elements.applyResults.innerHTML = '';
+            elements.fileInput.value = '';
+            updateStatus('ready', '준비됨');
+            logMessage('🗑️ 모든 데이터가 초기화되었습니다.');
+        }
+
+        function reloadPreview() {
+            const currentSrc = elements.previewFrame.src;
+            elements.previewFrame.src = '';
+            setTimeout(() => {
+                elements.previewFrame.src = currentSrc;
+            }, 100);
+        }
+
+        function openInNewWindow() {
+            if (modifiedHTML) {
+                const newWindow = window.open();
+                newWindow.document.write(modifiedHTML);
+                newWindow.document.close();
+            } else {
+                window.open('../templates/modified/eventre-business-test/index.html', '_blank');
+            }
+        }
+
+        function downloadModified() {
+            if (!modifiedHTML) {
+                alert('먼저 컨텐츠를 적용하세요.');
+                return;
+            }
+
+            const blob = new Blob([modifiedHTML], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'modified-website.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            logMessage('💾 수정된 웹사이트 다운로드 완료');
+        }
+
+        // 유틸리티 함수들
+        function getFileIcon(type) {
+            const icons = {
+                'document': '📄',
+                'image': '🖼️',
+                'video': '🎥',
+                'unknown': '📎'
+            };
+            return icons[type] || icons.unknown;
+        }
+
+        function formatFileSize(bytes) {
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            if (bytes === 0) return '0 Bytes';
+            const i = Math.floor(Math.log(bytes) / Math.log(1024));
+            return Math.round(bytes / Math.pow(1024, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        function getSectionDisplayName(section) {
+            const names = {
+                'hero': '🏠 메인 섹션',
+                'services': '⚙️ 서비스',
+                'team': '👥 팀 소개',
+                'contact': '📞 연락처'
+            };
+            return names[section] || section;
+        }
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', () => {
+            initializeEventListeners();
+            logMessage('🤖 AI 없는 컨텐츠 자동 적용 시스템 준비 완료!');
+        });
+    </script>
+</body>
+</html>

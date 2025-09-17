@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 웹사이트 빌더 - 파일 업로드 데모</title>
+    <link rel="stylesheet" href="css/upload-styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- 헤더 -->
+        <header class="header">
+            <h1><i class="fas fa-magic"></i> AI 웹사이트 빌더</h1>
+            <p>파일을 업로드하면 AI가 자동으로 분석하여 웹사이트를 생성합니다</p>
+        </header>
+
+        <!-- 단계 표시 -->
+        <div class="steps">
+            <div class="step active">
+                <div class="step-number">1</div>
+                <div class="step-text">파일 업로드</div>
+            </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-text">내용 분석</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-text">웹사이트 생성</div>
+            </div>
+        </div>
+
+        <!-- 파일 업로드 영역 -->
+        <div class="upload-section">
+            <div class="upload-zone" id="uploadZone">
+                <div class="upload-content">
+                    <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                    <h3>파일을 여기에 드래그하세요</h3>
+                    <p>또는 <span class="browse-text">파일 선택</span>을 클릭하세요</p>
+                    <p class="supported-formats">
+                        지원 형식: PDF, DOC/DOCX, 이미지 (JPG, PNG, GIF), 비디오 (MP4, WEBM)
+                    </p>
+                </div>
+                <input type="file" id="fileInput" multiple accept=".pdf,.doc,.docx,.txt,.jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.ogg">
+            </div>
+
+            <!-- 업로드 진행률 -->
+            <div class="upload-progress" id="uploadProgress" style="display: none;">
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-text" id="progressText">업로드 중... 0%</div>
+            </div>
+        </div>
+
+        <!-- 파일 목록 -->
+        <div class="file-list" id="fileList" style="display: none;">
+            <h3><i class="fas fa-list"></i> 업로드된 파일</h3>
+            <div class="file-items" id="fileItems"></div>
+        </div>
+
+        <!-- 분석 결과 -->
+        <div class="analysis-section" id="analysisSection" style="display: none;">
+            <h3><i class="fas fa-brain"></i> AI 분석 결과</h3>
+
+            <!-- 분석 통계 -->
+            <div class="analysis-stats" id="analysisStats"></div>
+
+            <!-- 섹션별 매칭 결과 -->
+            <div class="section-mapping" id="sectionMapping"></div>
+
+            <!-- 매칭되지 않은 컨텐츠 -->
+            <div class="unmatched-content" id="unmatchedContent"></div>
+        </div>
+
+        <!-- 액션 버튼 -->
+        <div class="action-buttons" id="actionButtons" style="display: none;">
+            <button class="btn btn-secondary" id="resetBtn">
+                <i class="fas fa-redo"></i> 다시 시작
+            </button>
+            <button class="btn btn-primary" id="generateBtn">
+                <i class="fas fa-rocket"></i> 웹사이트 생성
+            </button>
+        </div>
+
+        <!-- 로딩 오버레이 -->
+        <div class="loading-overlay" id="loadingOverlay" style="display: none;">
+            <div class="loading-content">
+                <div class="spinner"></div>
+                <h3>AI가 컨텐츠를 분석하고 있습니다...</h3>
+                <p id="loadingMessage">파일을 처리 중입니다</p>
+            </div>
+        </div>
+
+        <!-- 알림 메시지 -->
+        <div class="notification" id="notification"></div>
+    </div>
+
+    <!-- 미리보기 모달 -->
+    <div class="modal" id="previewModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4>파일 미리보기</h4>
+                <button class="modal-close" id="modalClose">&times;</button>
+            </div>
+            <div class="modal-body" id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- JavaScript 파일들 -->
+    <script src="js/file-processor.js"></script>
+    <script src="js/file-validator.js"></script>
+    <script src="js/content-analyzer.js"></script>
+    <script src="js/upload-demo.js"></script>
+</body>
+</html>
